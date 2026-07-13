@@ -1,0 +1,9 @@
+[package]
+name = "executor"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pumpfun = "4.6.0"
+jup-ag-sdk = "1.0.6"
+coins-config = { path = "../config" }
