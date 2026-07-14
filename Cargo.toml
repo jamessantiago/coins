@@ -33,10 +33,11 @@ anyhow = "1"
 thiserror = "2"
 
 # sqlite
-sqlx = { version = "0.9", features = ["runtime-tokio", "sqlite"] }
+sqlx = { version = "0.9", features = ["runtime-tokio", "sqlite", "chrono"] }
 
 # background jobs
 dotenvy = "0.15.7"
 envy = "0.4.2"
+chrono = "0.4"
 apalis = "1.0.0-rc.9"
 apalis-sqlite = "1.0.0-rc.8"

@@ -16,5 +16,6 @@ opentelemetry-otlp.workspace = true
 tracing-opentelemetry.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
+sqlx.workspace = true
 coins-config = { path = "../core/config" }
 coins-database = { path = "../core/database" }

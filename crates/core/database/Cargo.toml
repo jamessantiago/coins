@@ -8,4 +8,8 @@ sqlx.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+chrono.workspace = true
 coins-config = { path = "../config" }
+
+[dev-dependencies]
+tokio.workspace = true
