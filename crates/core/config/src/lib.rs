@@ -6,6 +6,8 @@ pub struct Config {
     pub otlp_endpoint: Option<String>,
     pub host: Option<String>,
     pub port: Option<u16>,
+    pub tls_cert_path: Option<String>,
+    pub tls_key_path: Option<String>,
 }
 
 impl Config {

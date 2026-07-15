@@ -1,12 +1,15 @@
 mod routes;
 mod state;
 
+use std::net::SocketAddr;
+use std::process::exit;
 use axum::routing::get;
 use axum::Router;
+use axum_server::tls_rustls::RustlsConfig;
 use coins_config::Config;
 use coins_database::create_pool;
 use tower_http::cors::CorsLayer;
-use tracing::info;
+use tracing::{error, info};
 
 use crate::routes::health::healthcheck;
 use crate::state::AppState;
@@ -20,7 +23,9 @@ async fn main() -> anyhow::Result<()> {
 
     let host = config.host.clone().unwrap_or("0.0.0.0".into());
     let port = config.port.unwrap_or(3000);
+    let addr: SocketAddr = format!("{}:{}", host, port).parse()?;
 
+    let (tls_cert, tls_key) = (config.tls_cert_path.clone(), config.tls_key_path.clone());
     let state = AppState { pool, config };
 
     let app = Router::new()
@@ -28,12 +33,19 @@ async fn main() -> anyhow::Result<()> {
         .layer(CorsLayer::permissive())
         .with_state(state);
 
-    let addr = format!("{}:{}", host, port);
-
-    info!("listening on {}", addr);
-
-    let listener = tokio::net::TcpListener::bind(&addr).await?;
-    axum::serve(listener, app).await?;
+    match (&tls_cert, &tls_key) {
+        (Some(cert), Some(key)) => {
+            let tls_config = RustlsConfig::from_pem_file(cert, key).await?;
+            info!("listening on https://{}", addr);
+            axum_server::bind_rustls(addr, tls_config)
+                .serve(app.into_make_service())
+                .await?;
+        }
+        _ => {
+            error!("Generate a key before continuing, see scripts");
+            exit(1);
+        }
+    }
 
     Ok(())
 }
