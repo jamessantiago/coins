@@ -17,11 +17,16 @@ pub use queries::risk_settings::{get_risk, upsert_risk};
 
 use sqlx::SqlitePool;
 use sqlx::sqlite::SqlitePoolOptions;
+pub use sqlx::migrate::Migrator;
+
+static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
 pub async fn create_pool(database_url: &str) -> anyhow::Result<SqlitePool> {
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
         .connect(database_url)
         .await?;
+
+    MIGRATOR.run(&pool).await?;
     Ok(pool)
 }

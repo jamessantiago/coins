@@ -3,6 +3,8 @@ mod state;
 
 use std::net::SocketAddr;
 use std::process::exit;
+use std::time::Duration;
+
 use axum::routing::get;
 use axum::Router;
 use axum_server::tls_rustls::RustlsConfig;
@@ -20,6 +22,20 @@ async fn main() -> anyhow::Result<()> {
 
     let config = Config::from_env()?;
     let pool = create_pool(&config.core_database).await?;
+
+    {
+        let pool = pool.clone();
+        let config = config.clone();
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(Duration::from_secs(300));
+            loop {
+                interval.tick().await;
+                if let Err(e) = coins_scanner::run(&pool, &config).await {
+                    tracing::error!(error = %e, "scanner cycle failed");
+                }
+            }
+        });
+    }
 
     let host = config.host.clone().unwrap_or("0.0.0.0".into());
     let port = config.port.unwrap_or(3000);

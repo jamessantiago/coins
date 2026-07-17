@@ -1,10 +1,11 @@
 use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
 use sqlx::SqlitePool;
 
 use crate::models::sse_event::SseEvent;
 
 pub async fn create(pool: &SqlitePool, event: &str, data: &str) -> Result<SseEvent> {
+    let now = Utc::now().naive_utc();
     let id = sqlx::query_scalar::<_, i64>(
         r#"
         INSERT INTO sse_events (event, data, created_at)
@@ -14,7 +15,7 @@ pub async fn create(pool: &SqlitePool, event: &str, data: &str) -> Result<SseEve
     )
     .bind(event)
     .bind(data)
-    .bind(NaiveDateTime::default())
+    .bind(now)
     .fetch_one(pool)
     .await?;
 
@@ -22,7 +23,7 @@ pub async fn create(pool: &SqlitePool, event: &str, data: &str) -> Result<SseEve
         id,
         event: event.to_string(),
         data: data.to_string(),
-        created_at: NaiveDateTime::default(),
+        created_at: now,
     })
 }
 
