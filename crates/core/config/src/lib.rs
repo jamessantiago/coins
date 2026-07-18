@@ -1,4 +1,15 @@
+use std::time::Duration;
+
 use serde::Deserialize;
+
+pub const APP_USER_AGENT: &str = "coins-rust/0.1.0";
+
+pub fn http_client(timeout_secs: u64) -> reqwest::Result<reqwest::Client> {
+    reqwest::Client::builder()
+        .user_agent(APP_USER_AGENT)
+        .timeout(Duration::from_secs(timeout_secs))
+        .build()
+}
 
 #[derive(Clone, Default, Deserialize)]
 pub struct Config {
@@ -16,6 +27,8 @@ pub struct Config {
     pub cex_poll_interval_secs: Option<u64>,
     pub cex_binance_tickers_url: Option<String>,
     pub cex_coinbase_assets_url: Option<String>,
+    pub telegram_bot_token: Option<String>,
+    pub telegram_poll_interval_secs: Option<u64>,
 }
 
 impl Config {
@@ -62,6 +75,14 @@ impl Config {
         self.cex_coinbase_assets_url
             .clone()
             .unwrap_or_else(|| cex::COINBASE_ASSETS_URL.to_string())
+    }
+
+    pub fn telegram_bot_token(&self) -> String {
+        self.telegram_bot_token.clone().unwrap_or_default()
+    }
+
+    pub fn telegram_poll_interval(&self) -> u64 {
+        self.telegram_poll_interval_secs.unwrap_or(60)
     }
 }
 

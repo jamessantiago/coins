@@ -112,7 +112,9 @@ pub fn match_clusters(name: &str, symbol: &str) -> Vec<String> {
     for (cluster_name, kws) in &keywords {
         for kw in kws {
             let pattern = format!(r"\b{}\b", regex::escape(kw));
-            if let Ok(re) = regex::Regex::new(&pattern) && re.is_match(&text) {
+            if let Ok(re) = regex::Regex::new(&pattern)
+                && re.is_match(&text)
+            {
                 matched.push(cluster_name.to_string());
                 break;
             }

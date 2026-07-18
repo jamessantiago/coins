@@ -1,8 +1,9 @@
 mod client;
 
 pub use client::{CexListingCandidate, extract_binance_listings, extract_coinbase_listings};
+use std::collections::HashSet;
 
-use chrono::Utc;
+use chrono::{NaiveDateTime, Utc};
 use coins_config::Config;
 use coins_database::models::cex_listing::CexListing;
 use coins_database::queries::{cex_listing, poll_timestamp, sse_event};
@@ -30,21 +31,7 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
         let candidates = client::extract_binance_listings(&tickers);
         total_candidates += candidates.len();
 
-        for c in candidates {
-            if known_ids.contains(&c.external_id) {
-                continue;
-            }
-            new_listings.push(CexListing {
-                exchange: c.exchange,
-                external_id: c.external_id,
-                token_name: c.token_name,
-                token_symbol: c.token_symbol,
-                listing_url: c.listing_url,
-                announced_at: None,
-                detected_at: now,
-                ..Default::default()
-            });
-        }
+        push_listings(now, &known_ids, &mut new_listings, candidates);
     }
 
     // Coinbase
@@ -53,21 +40,7 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
         let candidates = client::extract_coinbase_listings(&assets);
         total_candidates += candidates.len();
 
-        for c in candidates {
-            if known_ids.contains(&c.external_id) {
-                continue;
-            }
-            new_listings.push(CexListing {
-                exchange: c.exchange,
-                external_id: c.external_id,
-                token_name: c.token_name,
-                token_symbol: c.token_symbol,
-                listing_url: c.listing_url,
-                announced_at: None,
-                detected_at: now,
-                ..Default::default()
-            });
-        }
+        push_listings(now, &known_ids, &mut new_listings, candidates);
     }
 
     let new_count = new_listings.len() as i32;
@@ -102,4 +75,27 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
 
     tracing::info!("CEX scan cycle finished");
     Ok(())
+}
+
+fn push_listings(
+    now: NaiveDateTime,
+    known_ids: &HashSet<String>,
+    new_listings: &mut Vec<CexListing>,
+    candidates: Vec<CexListingCandidate>,
+) {
+    for c in candidates {
+        if known_ids.contains(&c.external_id) {
+            continue;
+        }
+        new_listings.push(CexListing {
+            exchange: c.exchange,
+            external_id: c.external_id,
+            token_name: c.token_name,
+            token_symbol: c.token_symbol,
+            listing_url: c.listing_url,
+            announced_at: None,
+            detected_at: now,
+            ..Default::default()
+        });
+    }
 }

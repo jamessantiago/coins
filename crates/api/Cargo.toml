@@ -23,3 +23,4 @@ coins-config = { path = "../core/config" }
 coins-database = { path = "../core/database" }
 coins-scanner = { path = "../jobs/scanner" }
 coins-cex = { path = "../jobs/cex" }
+coins-telegram = { path = "../jobs/telegram" }

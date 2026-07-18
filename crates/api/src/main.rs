@@ -52,6 +52,21 @@ async fn main() -> anyhow::Result<()> {
         });
     }
 
+    {
+        let pool = pool.clone();
+        let config = config.clone();
+        tokio::spawn(async move {
+            let interval_secs = config.telegram_poll_interval();
+            let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
+            loop {
+                interval.tick().await;
+                if let Err(e) = coins_telegram::run(&pool, &config).await {
+                    tracing::error!(error = %e, "telegram monitor cycle failed");
+                }
+            }
+        });
+    }
+
     let host = config.host.clone().unwrap_or("0.0.0.0".into());
     let port = config.port.unwrap_or(3000);
     let addr: SocketAddr = format!("{}:{}", host, port).parse()?;

@@ -1,13 +1,7 @@
 use std::collections::HashSet;
-use std::time::Duration;
 
+use coins_config::http_client;
 use serde_json::Value;
-
-fn http_client(timeout_secs: u64) -> reqwest::Result<reqwest::Client> {
-    reqwest::Client::builder()
-        .timeout(Duration::from_secs(timeout_secs))
-        .build()
-}
 
 pub async fn fetch_binance_tickers(url: &str) -> Vec<Value> {
     let client = match http_client(15) {
@@ -28,7 +22,8 @@ pub async fn fetch_binance_tickers(url: &str) -> Vec<Value> {
         }
         Ok(resp) => {
             let status = resp.status();
-            tracing::warn!("CoinGecko returned HTTP {status}");
+            let body: Value = resp.json().await.unwrap_or_default();
+            tracing::warn!("CoinGecko returned HTTP {status} {body}");
             vec![]
         }
         Err(e) => {

@@ -1,6 +1,6 @@
 mod util;
 
-use chrono::{NaiveDateTime, TimeDelta};
+use chrono::{TimeDelta, Utc};
 use coins_database::queries::sse_event;
 use util::setup_memory_pool;
 
@@ -37,9 +37,9 @@ async fn prune_removes_old_events() {
     sse_event::create(&pool, "old", "{}").await.unwrap();
     sse_event::create(&pool, "new", "{}").await.unwrap();
 
-    let cutoff = NaiveDateTime::default() + TimeDelta::try_seconds(1).unwrap();
+    let cutoff = Utc::now().naive_utc() + TimeDelta::try_seconds(1).unwrap();
     let removed = sse_event::prune(&pool, cutoff).await.unwrap();
-    assert!(removed > 0);
+    assert!(removed > 0, "expected >0 removed, got {removed}");
     assert_eq!(sse_event::read_since(&pool, 0).await.unwrap().len(), 0);
 }
 
