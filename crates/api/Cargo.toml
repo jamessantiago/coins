@@ -24,3 +24,4 @@ coins-database = { path = "../core/database" }
 coins-scanner = { path = "../jobs/scanner" }
 coins-cex = { path = "../jobs/cex" }
 coins-telegram = { path = "../jobs/telegram" }
+coins-distiller = { path = "../jobs/distiller" }

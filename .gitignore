@@ -1,3 +1,5 @@
 /target
 /certs/
 .env
+coins.db
+coins.db-journal

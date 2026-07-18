@@ -1,5 +1,5 @@
 mod client;
-mod cluster;
+pub mod cluster;
 
 pub use client::{TokenProfile, extract_tokens};
 

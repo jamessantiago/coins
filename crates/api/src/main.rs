@@ -4,7 +4,6 @@ mod state;
 use std::net::SocketAddr;
 use std::process::exit;
 use std::time::Duration;
-
 use axum::Router;
 use axum::routing::get;
 use axum_server::tls_rustls::RustlsConfig;
@@ -27,7 +26,8 @@ async fn main() -> anyhow::Result<()> {
         let pool = pool.clone();
         let config = config.clone();
         tokio::spawn(async move {
-            let mut interval = tokio::time::interval(Duration::from_secs(300));
+            let interval_secs = config.scanner_poll_interval();
+            let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
             loop {
                 interval.tick().await;
                 if let Err(e) = coins_scanner::run(&pool, &config).await {
@@ -62,6 +62,21 @@ async fn main() -> anyhow::Result<()> {
                 interval.tick().await;
                 if let Err(e) = coins_telegram::run(&pool, &config).await {
                     tracing::error!(error = %e, "telegram monitor cycle failed");
+                }
+            }
+        });
+    }
+
+    {
+        let pool = pool.clone();
+        let config = config.clone();
+        tokio::spawn(async move {
+            let interval_secs = config.distiller_poll_interval();
+            let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
+            loop {
+                interval.tick().await;
+                if let Err(e) = coins_distiller::run(&pool, &config).await {
+                    tracing::error!(error = %e, "distiller cycle failed");
                 }
             }
         });

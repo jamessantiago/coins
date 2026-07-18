@@ -24,11 +24,14 @@ pub struct Config {
     pub spike_threshold: Option<f64>,
     pub baseline_windows: Option<u64>,
     pub new_narrative_min_count: Option<i32>,
+    pub scanner_poll_interval_secs: Option<u64>,
     pub cex_poll_interval_secs: Option<u64>,
     pub cex_binance_tickers_url: Option<String>,
     pub cex_coinbase_assets_url: Option<String>,
     pub telegram_bot_token: Option<String>,
     pub telegram_poll_interval_secs: Option<u64>,
+    pub distiller_poll_interval_secs: Option<u64>,
+    pub dexscreener_search_url: Option<String>,
 }
 
 impl Config {
@@ -61,6 +64,10 @@ impl Config {
         self.new_narrative_min_count.unwrap_or(3)
     }
 
+    pub fn scanner_poll_interval(&self) -> u64 {
+        self.scanner_poll_interval_secs.unwrap_or(300)
+    }
+
     pub fn cex_poll_interval(&self) -> u64 {
         self.cex_poll_interval_secs.unwrap_or(300)
     }
@@ -83,6 +90,16 @@ impl Config {
 
     pub fn telegram_poll_interval(&self) -> u64 {
         self.telegram_poll_interval_secs.unwrap_or(60)
+    }
+
+    pub fn distiller_poll_interval(&self) -> u64 {
+        self.distiller_poll_interval_secs.unwrap_or(300)
+    }
+
+    pub fn dexscreener_search_url(&self) -> String {
+        self.dexscreener_search_url
+            .clone()
+            .unwrap_or_else(|| "https://api.dexscreener.com/latest/dex/search".to_string())
     }
 }
 

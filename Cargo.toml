@@ -3,10 +3,11 @@ resolver = "2"
 members = [
     "crates/api",
     "crates/core/config",
-    "crates/core/database", "crates/core/executor",
+    "crates/core/database", "crates/core/trading",
     "crates/jobs/scanner",
     "crates/jobs/cex",
     "crates/jobs/telegram",
+    "crates/jobs/distiller",
 ]
 
 [workspace.dependencies]
