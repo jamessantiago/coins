@@ -1,19 +1,14 @@
 use chrono::NaiveDateTime;
 
-#[derive(Debug, Clone, PartialEq, sqlx::Type)]
+#[derive(Default, Debug, Clone, PartialEq, sqlx::Type)]
 #[sqlx(rename_all = "snake_case")]
 pub enum TradeStatus {
+    #[default]
     Watching,
     VirtualBought,
     VirtualSold,
     Bought,
     Sold,
-}
-
-impl Default for TradeStatus {
-    fn default() -> Self {
-        Self::Watching
-    }
 }
 
 #[derive(Debug, Clone, sqlx::FromRow)]

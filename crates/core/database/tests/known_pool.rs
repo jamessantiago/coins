@@ -1,8 +1,8 @@
 mod util;
 
 use chrono::NaiveDateTime;
-use coins_database::queries::known_pool;
 use coins_database::KnownPool;
+use coins_database::queries::known_pool;
 use util::setup_memory_pool;
 
 fn sample_pool(address: &str, mint: &str) -> KnownPool {
@@ -20,7 +20,10 @@ fn sample_pool(address: &str, mint: &str) -> KnownPool {
 #[tokio::test]
 async fn bulk_create_and_list() {
     let pool = setup_memory_pool().await;
-    let pools = vec![sample_pool("pool1", "mint_a"), sample_pool("pool2", "mint_b")];
+    let pools = vec![
+        sample_pool("pool1", "mint_a"),
+        sample_pool("pool2", "mint_b"),
+    ];
     known_pool::bulk_create(&pool, &pools).await.unwrap();
 
     let addresses = known_pool::list_pool_addresses(&pool).await.unwrap();
@@ -36,14 +39,27 @@ async fn bulk_create_ignores_duplicates() {
     let p = sample_pool("dup", "mint");
     known_pool::bulk_create(&pool, &[p.clone()]).await.unwrap();
     known_pool::bulk_create(&pool, &[p]).await.unwrap();
-    assert_eq!(known_pool::list_pool_addresses(&pool).await.unwrap().len(), 1);
+    assert_eq!(
+        known_pool::list_pool_addresses(&pool).await.unwrap().len(),
+        1
+    );
 }
 
 #[tokio::test]
 async fn exists_by_address() {
     let pool = setup_memory_pool().await;
-    known_pool::bulk_create(&pool, &[sample_pool("exists", "m")]).await.unwrap();
-    assert!(known_pool::exists_by_address(&pool, "exists").await.unwrap());
-    assert!(!known_pool::exists_by_address(&pool, "missing").await.unwrap());
+    known_pool::bulk_create(&pool, &[sample_pool("exists", "m")])
+        .await
+        .unwrap();
+    assert!(
+        known_pool::exists_by_address(&pool, "exists")
+            .await
+            .unwrap()
+    );
+    assert!(
+        !known_pool::exists_by_address(&pool, "missing")
+            .await
+            .unwrap()
+    );
     assert_eq!(known_pool::count(&pool).await.unwrap(), 1);
 }

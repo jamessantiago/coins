@@ -23,16 +23,17 @@ pub async fn create(pool: &SqlitePool, entry: &ResearchEntry) -> Result<Research
     .fetch_one(pool)
     .await?;
 
-    Ok(ResearchEntry { id, ..entry.clone() })
+    Ok(ResearchEntry {
+        id,
+        ..entry.clone()
+    })
 }
 
 pub async fn get_by_id(pool: &SqlitePool, id: i64) -> Result<Option<ResearchEntry>> {
-    let row = sqlx::query_as::<_, ResearchEntry>(
-        "SELECT * FROM research_entries WHERE id = $1",
-    )
-    .bind(id)
-    .fetch_optional(pool)
-    .await?;
+    let row = sqlx::query_as::<_, ResearchEntry>("SELECT * FROM research_entries WHERE id = $1")
+        .bind(id)
+        .fetch_optional(pool)
+        .await?;
     Ok(row)
 }
 

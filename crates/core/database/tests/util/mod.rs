@@ -1,5 +1,5 @@
-use sqlx::sqlite::SqlitePoolOptions;
 use sqlx::SqlitePool;
+use sqlx::sqlite::SqlitePoolOptions;
 
 pub async fn setup_memory_pool() -> SqlitePool {
     let pool = SqlitePoolOptions::new()
@@ -8,7 +8,10 @@ pub async fn setup_memory_pool() -> SqlitePool {
         .await
         .expect("failed to create in-memory pool");
 
-    sqlx::query(SCHEMA_SQL).execute(&pool).await.expect("schema creation failed");
+    sqlx::query(SCHEMA_SQL)
+        .execute(&pool)
+        .await
+        .expect("schema creation failed");
     pool
 }
 

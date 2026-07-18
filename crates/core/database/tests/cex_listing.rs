@@ -1,8 +1,8 @@
 mod util;
 
 use chrono::NaiveDateTime;
-use coins_database::queries::cex_listing;
 use coins_database::CexListing;
+use coins_database::queries::cex_listing;
 use util::setup_memory_pool;
 
 fn sample_listing(exchange: &str, ext_id: &str) -> CexListing {
@@ -21,7 +21,10 @@ fn sample_listing(exchange: &str, ext_id: &str) -> CexListing {
 #[tokio::test]
 async fn bulk_create_and_list() {
     let pool = setup_memory_pool().await;
-    let listings = vec![sample_listing("binance", "1"), sample_listing("coinbase", "2")];
+    let listings = vec![
+        sample_listing("binance", "1"),
+        sample_listing("coinbase", "2"),
+    ];
     cex_listing::bulk_create(&pool, &listings).await.unwrap();
 
     let ids = cex_listing::list_external_ids(&pool).await.unwrap();
@@ -35,7 +38,10 @@ async fn bulk_create_ignores_duplicates() {
     cex_listing::bulk_create(&pool, &[l.clone()]).await.unwrap();
     cex_listing::bulk_create(&pool, &[l]).await.unwrap();
 
-    assert_eq!(cex_listing::list_external_ids(&pool).await.unwrap().len(), 1);
+    assert_eq!(
+        cex_listing::list_external_ids(&pool).await.unwrap().len(),
+        1
+    );
 }
 
 #[tokio::test]

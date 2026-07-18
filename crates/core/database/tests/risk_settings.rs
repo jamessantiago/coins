@@ -1,6 +1,6 @@
 mod util;
 
-use coins_database::{get_risk, upsert_risk, RiskSettings, TradingMode};
+use coins_database::{RiskSettings, TradingMode, get_risk, upsert_risk};
 use util::setup_memory_pool;
 
 #[tokio::test]

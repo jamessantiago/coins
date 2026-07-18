@@ -1,5 +1,5 @@
 use axum::http::StatusCode;
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use serde::Serialize;
 
 use crate::state::AppState;
@@ -14,11 +14,17 @@ pub async fn healthcheck(State(state): State<AppState>) -> (StatusCode, Json<Hea
     match sqlx::query("SELECT 1").execute(&state.pool).await {
         Ok(_) => (
             StatusCode::OK,
-            Json(HealthResponse { status: "ok", database: "connected" }),
+            Json(HealthResponse {
+                status: "ok",
+                database: "connected",
+            }),
         ),
         Err(_) => (
             StatusCode::SERVICE_UNAVAILABLE,
-            Json(HealthResponse { status: "error", database: "disconnected" }),
+            Json(HealthResponse {
+                status: "error",
+                database: "disconnected",
+            }),
         ),
     }
 }

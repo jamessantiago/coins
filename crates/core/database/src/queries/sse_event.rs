@@ -28,12 +28,10 @@ pub async fn create(pool: &SqlitePool, event: &str, data: &str) -> Result<SseEve
 }
 
 pub async fn read_since(pool: &SqlitePool, last_id: i64) -> Result<Vec<SseEvent>> {
-    let rows = sqlx::query_as::<_, SseEvent>(
-        "SELECT * FROM sse_events WHERE id > $1 ORDER BY id",
-    )
-    .bind(last_id)
-    .fetch_all(pool)
-    .await?;
+    let rows = sqlx::query_as::<_, SseEvent>("SELECT * FROM sse_events WHERE id > $1 ORDER BY id")
+        .bind(last_id)
+        .fetch_all(pool)
+        .await?;
     Ok(rows)
 }
 
@@ -47,12 +45,10 @@ pub async fn prune(pool: &SqlitePool, cutoff: NaiveDateTime) -> Result<u64> {
 }
 
 pub async fn exists_by_event(pool: &SqlitePool, event: &str) -> Result<bool> {
-    let count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM sse_events WHERE event = $1",
-    )
-    .bind(event)
-    .fetch_one(pool)
-    .await?;
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sse_events WHERE event = $1")
+        .bind(event)
+        .fetch_one(pool)
+        .await?;
     Ok(count > 0)
 }
 

@@ -1,19 +1,8 @@
 use std::time::Duration;
 
 use base64::Engine;
+use coins_config::scanner;
 use serde_json::Value;
-
-const RAYDIUM_AMM_PROGRAM: &str = "675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8";
-const PUMPFUN_PROGRAM: &str = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
-const SOL_ADDRESS: &str = "So11111111111111111111111111111111111111112";
-const USDC_ADDRESS: &str = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-const USDT_ADDRESS: &str = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
-const TOKEN_PROGRAM_ID: &str = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-
-const POOL_DATA_SIZE: u64 = 752;
-const COIN_MINT_OFFSET: usize = 144;
-const PC_MINT_OFFSET: usize = 176;
-const PUMPFUN_BC_SIZE: u64 = 105;
 
 #[derive(Debug, Clone)]
 pub struct TokenProfile {
@@ -36,7 +25,11 @@ pub struct PumpfunCurve {
 }
 
 fn known_quote_mints() -> [&'static str; 3] {
-    [SOL_ADDRESS, USDC_ADDRESS, USDT_ADDRESS]
+    [
+        scanner::SOL_ADDRESS,
+        scanner::USDC_ADDRESS,
+        scanner::USDT_ADDRESS,
+    ]
 }
 
 pub async fn fetch_latest_token_profiles(token_profiles_url: &str) -> Vec<Value> {
@@ -46,9 +39,19 @@ pub async fn fetch_latest_token_profiles(token_profiles_url: &str) -> Vec<Value>
         .unwrap();
 
     match client.get(token_profiles_url).send().await {
-        Ok(resp) if resp.status().is_success() => resp.json::<Vec<Value>>().await.unwrap_or_default(),
-        _ => {
-            tracing::warn!("failed to fetch token profiles from DexScreener");
+        Ok(resp) if resp.status().is_success() => {
+            resp.json::<Vec<Value>>().await.unwrap_or_default()
+        }
+        Err(e) => {
+            tracing::warn!("failed to fetch token profiles from DexScreener: {e:#}");
+            vec![]
+        }
+        Ok(resp) => {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            tracing::warn!(
+                "failed to fetch token profiles from DexScreener (HTTP {status}): {body}"
+            );
             vec![]
         }
     }
@@ -98,7 +101,12 @@ pub fn extract_tokens(profiles: &[Value]) -> Vec<TokenProfile> {
         .collect()
 }
 
-async fn rpc_call(solana_rpc_url: &str, method: &str, params: Value, timeout_secs: u64) -> Option<Value> {
+async fn rpc_call(
+    solana_rpc_url: &str,
+    method: &str,
+    params: Value,
+    timeout_secs: u64,
+) -> Option<Value> {
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(timeout_secs))
         .build()
@@ -132,10 +140,10 @@ fn decode_pubkey(data: &[u8], offset: usize) -> String {
 
 pub async fn fetch_raydium_pools(solana_rpc_url: &str) -> Vec<RaydiumPool> {
     let params = serde_json::json!([
-        RAYDIUM_AMM_PROGRAM,
+        scanner::RAYDIUM_AMM_PROGRAM,
         {
             "encoding": "base64",
-            "filters": [{"dataSize": POOL_DATA_SIZE}],
+            "filters": [{"dataSize": scanner::POOL_DATA_SIZE}],
         },
     ]);
 
@@ -182,12 +190,12 @@ pub async fn fetch_raydium_pools(solana_rpc_url: &str) -> Vec<RaydiumPool> {
             Err(_) => continue,
         };
 
-        if data.len() < PC_MINT_OFFSET + 32 {
+        if data.len() < scanner::PC_MINT_OFFSET + 32 {
             continue;
         }
 
-        let base_mint = decode_pubkey(&data, COIN_MINT_OFFSET);
-        let quote_mint = decode_pubkey(&data, PC_MINT_OFFSET);
+        let base_mint = decode_pubkey(&data, scanner::COIN_MINT_OFFSET);
+        let quote_mint = decode_pubkey(&data, scanner::PC_MINT_OFFSET);
 
         if known_quote.contains(&base_mint.as_str()) {
             continue;
@@ -205,10 +213,10 @@ pub async fn fetch_raydium_pools(solana_rpc_url: &str) -> Vec<RaydiumPool> {
 
 pub async fn fetch_pumpfun_bonding_curves(solana_rpc_url: &str) -> Vec<PumpfunCurve> {
     let params = serde_json::json!([
-        PUMPFUN_PROGRAM,
+        scanner::PUMPFUN_PROGRAM,
         {
             "encoding": "base64",
-            "filters": [{"dataSize": PUMPFUN_BC_SIZE}],
+            "filters": [{"dataSize": scanner::PUMPFUN_BC_SIZE}],
         },
     ]);
 
@@ -254,7 +262,7 @@ pub async fn fetch_pumpfun_bonding_curves(solana_rpc_url: &str) -> Vec<PumpfunCu
             Err(_) => continue,
         };
 
-        if data.len() < PUMPFUN_BC_SIZE as usize {
+        if data.len() < scanner::PUMPFUN_BC_SIZE as usize {
             continue;
         }
 
@@ -267,7 +275,7 @@ pub async fn fetch_pumpfun_bonding_curves(solana_rpc_url: &str) -> Vec<PumpfunCu
 pub async fn fetch_mint_for_bonding_curve(bc_pubkey: &str, solana_rpc_url: &str) -> Option<String> {
     let params = serde_json::json!([
         bc_pubkey,
-        { "programId": TOKEN_PROGRAM_ID },
+        { "programId": scanner::TOKEN_PROGRAM_ID },
         { "encoding": "base64" },
     ]);
 

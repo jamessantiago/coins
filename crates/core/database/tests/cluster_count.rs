@@ -7,13 +7,21 @@ use util::setup_memory_pool;
 async fn upsert_creates_and_updates() {
     let pool = setup_memory_pool().await;
 
-    cluster_count::upsert(&pool, "defi", "2024-01", 10).await.unwrap();
-    let rows = cluster_count::get_by_bucket(&pool, "2024-01").await.unwrap();
+    cluster_count::upsert(&pool, "defi", "2024-01", 10)
+        .await
+        .unwrap();
+    let rows = cluster_count::get_by_bucket(&pool, "2024-01")
+        .await
+        .unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].count, 10);
 
-    cluster_count::upsert(&pool, "defi", "2024-01", 20).await.unwrap();
-    let rows = cluster_count::get_by_bucket(&pool, "2024-01").await.unwrap();
+    cluster_count::upsert(&pool, "defi", "2024-01", 20)
+        .await
+        .unwrap();
+    let rows = cluster_count::get_by_bucket(&pool, "2024-01")
+        .await
+        .unwrap();
     assert_eq!(rows[0].count, 20);
 }
 
@@ -37,7 +45,9 @@ async fn get_distinct_buckets_returns_ordered() {
     cluster_count::upsert(&pool, "a", "y", 1).await.unwrap();
     cluster_count::upsert(&pool, "a", "x", 1).await.unwrap();
 
-    let buckets = cluster_count::get_distinct_buckets(&pool, 10).await.unwrap();
+    let buckets = cluster_count::get_distinct_buckets(&pool, 10)
+        .await
+        .unwrap();
     assert_eq!(buckets, vec!["z", "y", "x"]);
 }
 
@@ -48,10 +58,8 @@ async fn get_by_clusters_and_buckets_filters() {
     cluster_count::upsert(&pool, "meme", "a", 2).await.unwrap();
     cluster_count::upsert(&pool, "defi", "b", 3).await.unwrap();
 
-    let rows = cluster_count::get_by_clusters_and_buckets(
-        &pool, &["a".to_string()],
-    )
-    .await
-    .unwrap();
+    let rows = cluster_count::get_by_clusters_and_buckets(&pool, &["a".to_string()])
+        .await
+        .unwrap();
     assert_eq!(rows.len(), 2);
 }

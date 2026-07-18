@@ -3,7 +3,9 @@ mod util;
 use base64::Engine;
 use coins_config::Config;
 use coins_database::models::token::Token;
-use coins_database::queries::{cluster_count, known_pool, poll_timestamp, pump_bonding_curve, sse_event, token};
+use coins_database::queries::{
+    cluster_count, known_pool, poll_timestamp, pump_bonding_curve, sse_event, token,
+};
 use util::{pubkey_bytes, pubkey_str, setup_memory_pool};
 use wiremock::matchers::{body_string_contains, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -150,14 +152,18 @@ async fn test_scanner_full_pipeline() {
 
     Mock::given(method("POST"))
         .and(body_string_contains("getProgramAccounts"))
-        .and(body_string_contains("675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8"))
+        .and(body_string_contains(
+            "675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8",
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(solana_raydium_response()))
         .mount(&mock_server)
         .await;
 
     Mock::given(method("POST"))
         .and(body_string_contains("getProgramAccounts"))
-        .and(body_string_contains("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"))
+        .and(body_string_contains(
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(solana_pumpfun_response()))
         .mount(&mock_server)
         .await;
@@ -184,7 +190,9 @@ async fn test_scanner_full_pipeline() {
     assert_eq!(pool_addresses.len(), 1);
     assert!(pool_addresses.contains(&pubkey_str(20)));
 
-    let bc_addresses = pump_bonding_curve::list_bonding_curves(&pool).await.unwrap();
+    let bc_addresses = pump_bonding_curve::list_bonding_curves(&pool)
+        .await
+        .unwrap();
     assert_eq!(bc_addresses.len(), 1);
     assert!(bc_addresses.contains(&pubkey_str(30)));
 
@@ -199,8 +207,14 @@ async fn test_scanner_full_pipeline() {
 
     let events = sse_event::read_since(&pool, 0).await.unwrap();
     assert!(!events.is_empty(), "should have spike alerts");
-    let spike_events: Vec<_> = events.iter().filter(|e| e.event == "narrative_spike").collect();
-    assert!(!spike_events.is_empty(), "should have narrative_spike events");
+    let spike_events: Vec<_> = events
+        .iter()
+        .filter(|e| e.event == "narrative_spike")
+        .collect();
+    assert!(
+        !spike_events.is_empty(),
+        "should have narrative_spike events"
+    );
 }
 
 #[serial]
@@ -217,14 +231,18 @@ async fn test_scanner_dedup_raydium_base_mint() {
 
     Mock::given(method("POST"))
         .and(body_string_contains("getProgramAccounts"))
-        .and(body_string_contains("675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8"))
+        .and(body_string_contains(
+            "675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8",
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(solana_raydium_response()))
         .mount(&mock_server)
         .await;
 
     Mock::given(method("POST"))
         .and(body_string_contains("getProgramAccounts"))
-        .and(body_string_contains("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"))
+        .and(body_string_contains(
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(solana_pumpfun_response()))
         .mount(&mock_server)
         .await;
@@ -245,7 +263,11 @@ async fn test_scanner_dedup_raydium_base_mint() {
     assert_eq!(pool_addresses.len(), 2, "1 seeded pool + 1 new pool");
 
     let all_addresses = token::list_all_addresses(&pool).await.unwrap();
-    assert_eq!(all_addresses.len(), 3, "1 seeded + 1 dexscreener + 1 pumpfun; raydium base_mint is known");
+    assert_eq!(
+        all_addresses.len(),
+        3,
+        "1 seeded + 1 dexscreener + 1 pumpfun; raydium base_mint is known"
+    );
 }
 
 #[serial]
@@ -333,14 +355,18 @@ async fn test_scanner_cluster_count_upserted() {
 
     Mock::given(method("POST"))
         .and(body_string_contains("getProgramAccounts"))
-        .and(body_string_contains("675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8"))
+        .and(body_string_contains(
+            "675kPX9MHTjS2zt1q1frNYHuzeLXfQM9H24wFSUt1Mp8",
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(solana_raydium_response()))
         .mount(&mock_server)
         .await;
 
     Mock::given(method("POST"))
         .and(body_string_contains("getProgramAccounts"))
-        .and(body_string_contains("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"))
+        .and(body_string_contains(
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(solana_pumpfun_response()))
         .mount(&mock_server)
         .await;
@@ -358,7 +384,10 @@ async fn test_scanner_cluster_count_upserted() {
 
     let bucket = Utc::now().format("%Y-%m-%dT%H:%M").to_string();
     let counts = cluster_count::get_by_bucket(&pool, &bucket).await.unwrap();
-    assert!(!counts.is_empty(), "cluster counts should exist for the current bucket");
+    assert!(
+        !counts.is_empty(),
+        "cluster counts should exist for the current bucket"
+    );
 
     for cc in &counts {
         assert!(!cc.cluster.is_empty());
@@ -393,7 +422,10 @@ async fn test_scanner_no_tokens_then_no_alerts() {
     coins_scanner::run(&pool, &config).await.unwrap();
 
     let events = sse_event::read_since(&pool, 0).await.unwrap();
-    let spike_events: Vec<_> = events.iter().filter(|e| e.event == "narrative_spike").collect();
+    let spike_events: Vec<_> = events
+        .iter()
+        .filter(|e| e.event == "narrative_spike")
+        .collect();
     assert!(spike_events.is_empty());
 
     let ts = poll_timestamp::get_by_service(&pool, "scanner")

@@ -8,13 +8,15 @@ use crate::models::telegram::{TelegramChannel, TelegramMessage};
 // TelegramChannel
 // ---------------------------------------------------------------------------
 
-pub async fn get_or_create_channel(pool: &SqlitePool, username: &str) -> Result<(TelegramChannel, bool)> {
-    let existing = sqlx::query_as::<_, TelegramChannel>(
-        "SELECT * FROM telegram_channels WHERE username = $1",
-    )
-    .bind(username)
-    .fetch_optional(pool)
-    .await?;
+pub async fn get_or_create_channel(
+    pool: &SqlitePool,
+    username: &str,
+) -> Result<(TelegramChannel, bool)> {
+    let existing =
+        sqlx::query_as::<_, TelegramChannel>("SELECT * FROM telegram_channels WHERE username = $1")
+            .bind(username)
+            .fetch_optional(pool)
+            .await?;
 
     if let Some(ch) = existing {
         return Ok((ch, false));
@@ -52,21 +54,18 @@ pub async fn list_enabled_channels(pool: &SqlitePool) -> Result<Vec<TelegramChan
 }
 
 pub async fn get_channel_by_id(pool: &SqlitePool, id: i64) -> Result<Option<TelegramChannel>> {
-    let row = sqlx::query_as::<_, TelegramChannel>(
-        "SELECT * FROM telegram_channels WHERE id = $1",
-    )
-    .bind(id)
-    .fetch_optional(pool)
-    .await?;
+    let row = sqlx::query_as::<_, TelegramChannel>("SELECT * FROM telegram_channels WHERE id = $1")
+        .bind(id)
+        .fetch_optional(pool)
+        .await?;
     Ok(row)
 }
 
 pub async fn list_all_channels(pool: &SqlitePool) -> Result<Vec<TelegramChannel>> {
-    let rows = sqlx::query_as::<_, TelegramChannel>(
-        "SELECT * FROM telegram_channels ORDER BY username",
-    )
-    .fetch_all(pool)
-    .await?;
+    let rows =
+        sqlx::query_as::<_, TelegramChannel>("SELECT * FROM telegram_channels ORDER BY username")
+            .fetch_all(pool)
+            .await?;
     Ok(rows)
 }
 
@@ -137,12 +136,10 @@ pub async fn list_seen_message_ids(pool: &SqlitePool, channel_id: i64) -> Result
 }
 
 pub async fn get_message_by_id(pool: &SqlitePool, id: i64) -> Result<Option<TelegramMessage>> {
-    let row = sqlx::query_as::<_, TelegramMessage>(
-        "SELECT * FROM telegram_messages WHERE id = $1",
-    )
-    .bind(id)
-    .fetch_optional(pool)
-    .await?;
+    let row = sqlx::query_as::<_, TelegramMessage>("SELECT * FROM telegram_messages WHERE id = $1")
+        .bind(id)
+        .fetch_optional(pool)
+        .await?;
     Ok(row)
 }
 

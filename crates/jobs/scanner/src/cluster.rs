@@ -5,8 +5,24 @@ pub fn cluster_keywords() -> HashMap<&'static str, Vec<&'static str>> {
     m.insert(
         "AI",
         vec![
-            "ai", "agent", "brain", "deep", "neural", "gpt", "llm", "intel", "mind", "tensor",
-            "cortex", "genius", "smart", "learn", "autonomous", "llama", "grok", "compute",
+            "ai",
+            "agent",
+            "brain",
+            "deep",
+            "neural",
+            "gpt",
+            "llm",
+            "intel",
+            "mind",
+            "tensor",
+            "cortex",
+            "genius",
+            "smart",
+            "learn",
+            "autonomous",
+            "llama",
+            "grok",
+            "compute",
         ],
     );
     m.insert(
@@ -19,7 +35,15 @@ pub fn cluster_keywords() -> HashMap<&'static str, Vec<&'static str>> {
     m.insert(
         "RWA",
         vec![
-            "rwa", "real", "asset", "treasury", "tbill", "bond", "stable", "reit", "commodity",
+            "rwa",
+            "real",
+            "asset",
+            "treasury",
+            "tbill",
+            "bond",
+            "stable",
+            "reit",
+            "commodity",
         ],
     );
     m.insert(
@@ -32,7 +56,15 @@ pub fn cluster_keywords() -> HashMap<&'static str, Vec<&'static str>> {
     m.insert(
         "GAME",
         vec![
-            "game", "gaming", "play", "metaverse", "guild", "raid", "quest", "rpg", "pixel",
+            "game",
+            "gaming",
+            "play",
+            "metaverse",
+            "guild",
+            "raid",
+            "quest",
+            "rpg",
+            "pixel",
             "arcade",
         ],
     );
@@ -45,12 +77,22 @@ pub fn cluster_keywords() -> HashMap<&'static str, Vec<&'static str>> {
     );
     m.insert(
         "PRIVACY",
-        vec!["privacy", "private", "zk", "zero", "anon", "secret", "shield", "mask"],
+        vec![
+            "privacy", "private", "zk", "zero", "anon", "secret", "shield", "mask",
+        ],
     );
     m.insert(
         "SOCIAL",
         vec![
-            "social", "friend", "chat", "message", "post", "connect", "share", "fan", "community",
+            "social",
+            "friend",
+            "chat",
+            "message",
+            "post",
+            "connect",
+            "share",
+            "fan",
+            "community",
         ],
     );
     m.insert(
@@ -70,11 +112,9 @@ pub fn match_clusters(name: &str, symbol: &str) -> Vec<String> {
     for (cluster_name, kws) in &keywords {
         for kw in kws {
             let pattern = format!(r"\b{}\b", regex::escape(kw));
-            if let Ok(re) = regex::Regex::new(&pattern) {
-                if re.is_match(&text) {
-                    matched.push(cluster_name.to_string());
-                    break;
-                }
+            if let Ok(re) = regex::Regex::new(&pattern) && re.is_match(&text) {
+                matched.push(cluster_name.to_string());
+                break;
             }
         }
     }

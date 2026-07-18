@@ -1,7 +1,7 @@
 mod client;
 mod cluster;
 
-pub use client::{extract_tokens, TokenProfile};
+pub use client::{TokenProfile, extract_tokens};
 
 use std::collections::HashMap;
 
@@ -10,37 +10,13 @@ use coins_config::Config;
 use coins_database::models::known_pool::KnownPool;
 use coins_database::models::pump_bonding_curve::PumpBondingCurve;
 use coins_database::models::token::Token;
-use coins_database::queries::{cluster_count, known_pool, poll_timestamp, pump_bonding_curve, sse_event, token};
+use coins_database::queries::{
+    cluster_count, known_pool, poll_timestamp, pump_bonding_curve, sse_event, token,
+};
 use sqlx::SqlitePool;
 
 fn current_bucket() -> String {
     Utc::now().format("%Y-%m-%dT%H:%M").to_string()
-}
-
-fn solana_rpc_url(config: &Config) -> String {
-    config
-        .solana_rpc_url
-        .clone()
-        .unwrap_or_else(|| "https://api.mainnet-beta.solana.com".to_string())
-}
-
-fn token_profiles_url(config: &Config) -> String {
-    config
-        .dexscreener_token_profiles_url
-        .clone()
-        .unwrap_or_else(|| "https://api.dexscreener.com/token-profiles/latest/v1".to_string())
-}
-
-fn spike_threshold(config: &Config) -> f64 {
-    config.spike_threshold.unwrap_or(2.0)
-}
-
-fn baseline_windows(config: &Config) -> usize {
-    config.baseline_windows.unwrap_or(6) as usize
-}
-
-fn new_narrative_min_count(config: &Config) -> i32 {
-    config.new_narrative_min_count.unwrap_or(3)
 }
 
 pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
@@ -49,11 +25,11 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
 
     tracing::info!("scanner cycle starting");
 
-    let profiles_url = token_profiles_url(config);
-    let rpc_url = solana_rpc_url(config);
-    let threshold = spike_threshold(config);
-    let windows = baseline_windows(config);
-    let min_count = new_narrative_min_count(config);
+    let profiles_url = config.token_profiles_url();
+    let rpc_url = config.solana_rpc_url();
+    let threshold = config.spike_threshold();
+    let windows = config.baseline_windows();
+    let min_count = config.new_narrative_min_count();
 
     let profiles = client::fetch_latest_token_profiles(&profiles_url).await;
 
@@ -73,9 +49,14 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
 
     let raydium_pools = client::fetch_raydium_pools(&rpc_url).await;
     let known_pool_addresses: std::collections::HashSet<String> =
-        known_pool::list_pool_addresses(pool).await?.into_iter().collect();
-    let known_base_mints: std::collections::HashSet<String> =
-        known_pool::list_base_mints(pool).await?.into_iter().collect();
+        known_pool::list_pool_addresses(pool)
+            .await?
+            .into_iter()
+            .collect();
+    let known_base_mints: std::collections::HashSet<String> = known_pool::list_base_mints(pool)
+        .await?
+        .into_iter()
+        .collect();
 
     let mut new_pools: Vec<KnownPool> = Vec::new();
     let mut raydium_new: Vec<client::TokenProfile> = Vec::new();
@@ -111,8 +92,10 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
     }
 
     let pumpfun_curves = client::fetch_pumpfun_bonding_curves(&rpc_url).await;
-    let known_bc: std::collections::HashSet<String> =
-        pump_bonding_curve::list_bonding_curves(pool).await?.into_iter().collect();
+    let known_bc: std::collections::HashSet<String> = pump_bonding_curve::list_bonding_curves(pool)
+        .await?
+        .into_iter()
+        .collect();
 
     let mut new_curves: Vec<PumpBondingCurve> = Vec::new();
     let mut pumpfun_new: Vec<client::TokenProfile> = Vec::new();
@@ -144,7 +127,10 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
 
     if !new_curves.is_empty() {
         pump_bonding_curve::bulk_create(pool, &new_curves).await?;
-        tracing::info!("Pump.fun: {} new bonding curves discovered", new_curves.len());
+        tracing::info!(
+            "Pump.fun: {} new bonding curves discovered",
+            new_curves.len()
+        );
     }
 
     let all_new: Vec<client::TokenProfile> = dexscreener_new
@@ -177,7 +163,7 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
     let mut alerts: Vec<serde_json::Value> = Vec::new();
 
     let mut sorted_clusters: Vec<(String, i32)> = cluster_hits.into_iter().collect();
-    sorted_clusters.sort_by(|a, b| b.1.cmp(&a.1));
+    sorted_clusters.sort_by_key(|b| std::cmp::Reverse(b.1));
 
     for (cluster, count) in &sorted_clusters {
         cluster_count::upsert(pool, cluster, &bucket, *count).await?;

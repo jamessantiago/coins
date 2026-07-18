@@ -1,16 +1,11 @@
 [package]
-name = "coins-scanner"
+name = "coins-cex"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 anyhow.workspace = true
-apalis.workspace = true
-apalis-sqlite.workspace = true
-base64.workspace = true
-bs58.workspace = true
 chrono.workspace = true
-regex.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -22,5 +17,4 @@ coins-database = { path = "../../core/database" }
 
 [dev-dependencies]
 serial_test.workspace = true
-tokio.workspace = true
 wiremock.workspace = true

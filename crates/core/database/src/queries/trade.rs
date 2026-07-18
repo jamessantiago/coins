@@ -63,7 +63,10 @@ pub async fn create(pool: &SqlitePool, trade: &Trade) -> Result<Trade> {
     .fetch_one(pool)
     .await?;
 
-    Ok(Trade { id, ..trade.clone() })
+    Ok(Trade {
+        id,
+        ..trade.clone()
+    })
 }
 
 pub async fn get_by_id(pool: &SqlitePool, id: i64) -> Result<Option<Trade>> {
@@ -171,9 +174,7 @@ pub async fn list_by_statuses(pool: &SqlitePool, statuses: &[TradeStatus]) -> Re
     if statuses.is_empty() {
         return Ok(vec![]);
     }
-    let mut qb = QueryBuilder::new(
-        "SELECT * FROM trades WHERE status IN (",
-    );
+    let mut qb = QueryBuilder::new("SELECT * FROM trades WHERE status IN (");
     let mut sep = qb.separated(", ");
     for s in statuses {
         sep.push_bind(s);
@@ -203,10 +204,7 @@ pub async fn list_open_addresses(pool: &SqlitePool) -> Result<Vec<String>> {
     Ok(rows)
 }
 
-pub async fn list_pnl_trades(
-    pool: &SqlitePool,
-    trade_type: &str,
-) -> Result<Vec<Trade>> {
+pub async fn list_pnl_trades(pool: &SqlitePool, trade_type: &str) -> Result<Vec<Trade>> {
     let rows = sqlx::query_as::<_, Trade>(
         r#"
         SELECT * FROM trades
@@ -250,10 +248,9 @@ pub async fn count_open_real(pool: &SqlitePool) -> Result<i32> {
 }
 
 pub async fn list_all(pool: &SqlitePool) -> Result<Vec<Trade>> {
-    let rows =
-        sqlx::query_as::<_, Trade>("SELECT * FROM trades ORDER BY updated_at DESC")
-            .fetch_all(pool)
-            .await?;
+    let rows = sqlx::query_as::<_, Trade>("SELECT * FROM trades ORDER BY updated_at DESC")
+        .fetch_all(pool)
+        .await?;
     Ok(rows)
 }
 

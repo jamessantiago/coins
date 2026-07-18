@@ -72,10 +72,18 @@ async fn update_modifies_trade() {
 #[tokio::test]
 async fn list_open_returns_bought_and_virtual_bought() {
     let pool = setup_memory_pool().await;
-    trade::create(&pool, &sample_trade("watching", TradeStatus::Watching)).await.unwrap();
-    trade::create(&pool, &sample_trade("bought", TradeStatus::Bought)).await.unwrap();
-    trade::create(&pool, &sample_trade("vbought", TradeStatus::VirtualBought)).await.unwrap();
-    trade::create(&pool, &sample_trade("sold", TradeStatus::Sold)).await.unwrap();
+    trade::create(&pool, &sample_trade("watching", TradeStatus::Watching))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("bought", TradeStatus::Bought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("vbought", TradeStatus::VirtualBought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("sold", TradeStatus::Sold))
+        .await
+        .unwrap();
 
     let open = trade::list_open(&pool).await.unwrap();
     assert_eq!(open.len(), 2);
@@ -104,22 +112,46 @@ async fn open_position_value_sums() {
 #[tokio::test]
 async fn count_by_status_counts_correctly() {
     let pool = setup_memory_pool().await;
-    trade::create(&pool, &sample_trade("a", TradeStatus::Bought)).await.unwrap();
-    trade::create(&pool, &sample_trade("b", TradeStatus::Bought)).await.unwrap();
-    trade::create(&pool, &sample_trade("c", TradeStatus::Sold)).await.unwrap();
+    trade::create(&pool, &sample_trade("a", TradeStatus::Bought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("b", TradeStatus::Bought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("c", TradeStatus::Sold))
+        .await
+        .unwrap();
 
-    assert_eq!(trade::count_by_status(&pool, &TradeStatus::Bought).await.unwrap(), 2);
-    assert_eq!(trade::count_by_status(&pool, &TradeStatus::Sold).await.unwrap(), 1);
+    assert_eq!(
+        trade::count_by_status(&pool, &TradeStatus::Bought)
+            .await
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        trade::count_by_status(&pool, &TradeStatus::Sold)
+            .await
+            .unwrap(),
+        1
+    );
 }
 
 #[tokio::test]
 async fn list_by_statuses_filters() {
     let pool = setup_memory_pool().await;
-    trade::create(&pool, &sample_trade("a", TradeStatus::Bought)).await.unwrap();
-    trade::create(&pool, &sample_trade("b", TradeStatus::Sold)).await.unwrap();
-    trade::create(&pool, &sample_trade("c", TradeStatus::VirtualBought)).await.unwrap();
+    trade::create(&pool, &sample_trade("a", TradeStatus::Bought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("b", TradeStatus::Sold))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("c", TradeStatus::VirtualBought))
+        .await
+        .unwrap();
 
-    let results = trade::list_by_statuses(&pool, &[TradeStatus::Bought, TradeStatus::Sold]).await.unwrap();
+    let results = trade::list_by_statuses(&pool, &[TradeStatus::Bought, TradeStatus::Sold])
+        .await
+        .unwrap();
     assert_eq!(results.len(), 2);
 }
 
@@ -130,7 +162,9 @@ async fn count_open_real() {
     t1.trade_type = "real".into();
     trade::create(&pool, &t1).await.unwrap();
 
-    trade::create(&pool, &sample_trade("virt1", TradeStatus::Bought)).await.unwrap();
+    trade::create(&pool, &sample_trade("virt1", TradeStatus::Bought))
+        .await
+        .unwrap();
 
     assert_eq!(trade::count_open_real(&pool).await.unwrap(), 1);
 }
@@ -138,7 +172,9 @@ async fn count_open_real() {
 #[tokio::test]
 async fn delete_by_id_removes() {
     let pool = setup_memory_pool().await;
-    let t = trade::create(&pool, &sample_trade("del", TradeStatus::Watching)).await.unwrap();
+    let t = trade::create(&pool, &sample_trade("del", TradeStatus::Watching))
+        .await
+        .unwrap();
     assert!(trade::delete_by_id(&pool, t.id).await.unwrap());
     assert!(trade::get_by_id(&pool, t.id).await.unwrap().is_none());
 }
@@ -146,9 +182,15 @@ async fn delete_by_id_removes() {
 #[tokio::test]
 async fn list_open_addresses() {
     let pool = setup_memory_pool().await;
-    trade::create(&pool, &sample_trade("open1", TradeStatus::Bought)).await.unwrap();
-    trade::create(&pool, &sample_trade("open2", TradeStatus::VirtualBought)).await.unwrap();
-    trade::create(&pool, &sample_trade("closed", TradeStatus::Sold)).await.unwrap();
+    trade::create(&pool, &sample_trade("open1", TradeStatus::Bought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("open2", TradeStatus::VirtualBought))
+        .await
+        .unwrap();
+    trade::create(&pool, &sample_trade("closed", TradeStatus::Sold))
+        .await
+        .unwrap();
 
     let addrs = trade::list_open_addresses(&pool).await.unwrap();
     assert_eq!(addrs.len(), 2);
@@ -164,7 +206,9 @@ async fn list_pnl_trades_filters() {
     t1.position_size = Some(1.0);
     trade::create(&pool, &t1).await.unwrap();
 
-    trade::create(&pool, &sample_trade("no_pnl", TradeStatus::Sold)).await.unwrap();
+    trade::create(&pool, &sample_trade("no_pnl", TradeStatus::Sold))
+        .await
+        .unwrap();
 
     let pnl = trade::list_pnl_trades(&pool, "real").await.unwrap();
     assert_eq!(pnl.len(), 1);

@@ -16,8 +16,8 @@ pub use models::trade::{Trade, TradeStatus};
 pub use queries::risk_settings::{get_risk, upsert_risk};
 
 use sqlx::SqlitePool;
-use sqlx::sqlite::SqlitePoolOptions;
 pub use sqlx::migrate::Migrator;
+use sqlx::sqlite::SqlitePoolOptions;
 
 static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 

@@ -7,8 +7,12 @@ use util::setup_memory_pool;
 #[tokio::test]
 async fn create_and_read_since() {
     let pool = setup_memory_pool().await;
-    let e1 = sse_event::create(&pool, "trade", r#"{"price": 100}"#).await.unwrap();
-    sse_event::create(&pool, "trade", r#"{"price": 200}"#).await.unwrap();
+    let e1 = sse_event::create(&pool, "trade", r#"{"price": 100}"#)
+        .await
+        .unwrap();
+    sse_event::create(&pool, "trade", r#"{"price": 200}"#)
+        .await
+        .unwrap();
 
     let events = sse_event::read_since(&pool, e1.id).await.unwrap();
     assert_eq!(events.len(), 1);
@@ -19,7 +23,11 @@ async fn create_and_read_since() {
 async fn exists_by_event() {
     let pool = setup_memory_pool().await;
     sse_event::create(&pool, "test_event", "{}").await.unwrap();
-    assert!(sse_event::exists_by_event(&pool, "test_event").await.unwrap());
+    assert!(
+        sse_event::exists_by_event(&pool, "test_event")
+            .await
+            .unwrap()
+    );
     assert!(!sse_event::exists_by_event(&pool, "missing").await.unwrap());
 }
 

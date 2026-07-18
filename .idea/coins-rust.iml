@@ -11,6 +11,8 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/core/executor/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/core/database/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/jobs/scanner/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/jobs/cex/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/jobs/cex/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/coins-core/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/api/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/core/config/target" />

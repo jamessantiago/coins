@@ -33,11 +33,9 @@ pub async fn list_all_addresses(pool: &SqlitePool) -> Result<Vec<String>> {
 }
 
 pub async fn exists_by_address(pool: &SqlitePool, address: &str) -> Result<bool> {
-    let count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM tokens WHERE address = $1",
-    )
-    .bind(address)
-    .fetch_one(pool)
-    .await?;
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM tokens WHERE address = $1")
+        .bind(address)
+        .fetch_one(pool)
+        .await?;
     Ok(count > 0)
 }

@@ -77,10 +77,9 @@ pub async fn filter_by_symbol(pool: &SqlitePool, symbol: &str) -> Result<Vec<Cex
 }
 
 pub async fn list_all(pool: &SqlitePool) -> Result<Vec<CexListing>> {
-    let rows = sqlx::query_as::<_, CexListing>(
-        "SELECT * FROM cex_listings ORDER BY detected_at DESC",
-    )
-    .fetch_all(pool)
-    .await?;
+    let rows =
+        sqlx::query_as::<_, CexListing>("SELECT * FROM cex_listings ORDER BY detected_at DESC")
+            .fetch_all(pool)
+            .await?;
     Ok(rows)
 }

@@ -66,12 +66,11 @@ pub async fn upsert(pool: &SqlitePool, token: &DistilledToken) -> Result<()> {
 }
 
 pub async fn get_by_address(pool: &SqlitePool, address: &str) -> Result<Option<DistilledToken>> {
-    let row = sqlx::query_as::<_, DistilledToken>(
-        "SELECT * FROM distilled_tokens WHERE address = $1",
-    )
-    .bind(address)
-    .fetch_optional(pool)
-    .await?;
+    let row =
+        sqlx::query_as::<_, DistilledToken>("SELECT * FROM distilled_tokens WHERE address = $1")
+            .bind(address)
+            .fetch_optional(pool)
+            .await?;
     Ok(row)
 }
 
@@ -116,18 +115,19 @@ pub async fn list_filtered_simple(
     qb.push(order);
     qb.push(" LIMIT ");
     qb.push_bind(limit as i64);
-    let rows = qb.build_query_as::<DistilledToken>().fetch_all(pool).await?;
+    let rows = qb
+        .build_query_as::<DistilledToken>()
+        .fetch_all(pool)
+        .await?;
     Ok(rows)
 }
 
 pub async fn update_ranking_score(pool: &SqlitePool, address: &str, score: f64) -> Result<bool> {
-    let affected = sqlx::query(
-        "UPDATE distilled_tokens SET ranking_score = $1 WHERE address = $2",
-    )
-    .bind(score)
-    .bind(address)
-    .execute(pool)
-    .await?
-    .rows_affected();
+    let affected = sqlx::query("UPDATE distilled_tokens SET ranking_score = $1 WHERE address = $2")
+        .bind(score)
+        .bind(address)
+        .execute(pool)
+        .await?
+        .rows_affected();
     Ok(affected > 0)
 }

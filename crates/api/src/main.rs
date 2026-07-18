@@ -5,8 +5,8 @@ use std::net::SocketAddr;
 use std::process::exit;
 use std::time::Duration;
 
-use axum::routing::get;
 use axum::Router;
+use axum::routing::get;
 use axum_server::tls_rustls::RustlsConfig;
 use coins_config::Config;
 use coins_database::create_pool;
@@ -32,6 +32,21 @@ async fn main() -> anyhow::Result<()> {
                 interval.tick().await;
                 if let Err(e) = coins_scanner::run(&pool, &config).await {
                     tracing::error!(error = %e, "scanner cycle failed");
+                }
+            }
+        });
+    }
+
+    {
+        let pool = pool.clone();
+        let config = config.clone();
+        tokio::spawn(async move {
+            let interval_secs = config.cex_poll_interval();
+            let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
+            loop {
+                interval.tick().await;
+                if let Err(e) = coins_cex::run(&pool, &config).await {
+                    tracing::error!(error = %e, "CEX scan cycle failed");
                 }
             }
         });

@@ -98,9 +98,8 @@ pub async fn get_by_clusters_and_buckets(
     if buckets.is_empty() {
         return Ok(vec![]);
     }
-    let mut qb = QueryBuilder::new(
-        "SELECT cluster, bucket, count FROM cluster_counts WHERE bucket IN (",
-    );
+    let mut qb =
+        QueryBuilder::new("SELECT cluster, bucket, count FROM cluster_counts WHERE bucket IN (");
     let mut sep = qb.separated(", ");
     for b in buckets {
         sep.push_bind(b);
