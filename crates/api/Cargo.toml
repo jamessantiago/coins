@@ -22,3 +22,5 @@ sqlx.workspace = true
 validator.workspace = true
 coins-config = { path = "../core/config" }
 coins-app = { path = "../app" }
+utoipa.workspace = true
+utoipa-swagger-ui.workspace = true

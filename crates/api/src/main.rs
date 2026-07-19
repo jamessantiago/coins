@@ -1,5 +1,6 @@
 mod error;
 mod extractor;
+mod openapi;
 mod routes;
 
 use std::net::SocketAddr;
@@ -9,9 +10,16 @@ use coins_app::App;
 use coins_config::Config;
 use tower_http::cors::CorsLayer;
 use tracing::{error, info};
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    if std::env::args().any(|a| a == "--openapi") {
+        println!("{}", openapi::ApiDoc::openapi().to_pretty_json()?);
+        return Ok(());
+    }
+
     tracing_subscriber::fmt().init();
 
     let config = Config::from_env()?;
@@ -22,6 +30,8 @@ async fn main() -> anyhow::Result<()> {
     let addr: SocketAddr = format!("{}:{}", host, port).parse()?;
 
     let router = routes::router()
+        .merge(SwaggerUi::new("/swagger-ui")
+            .url("/api-docs/openapi.json", openapi::ApiDoc::openapi()))
         .layer(CorsLayer::permissive())
         .with_state(app.state);
 

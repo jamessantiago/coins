@@ -14,12 +14,29 @@ pub fn router() -> Router<AppState> {
         .route("/risk/add-funds", post(add_funds))
 }
 
-async fn get_risk(State(state): State<AppState>) -> Result<Json<RiskSettingsResponse>, AppError> {
+#[utoipa::path(
+    get,
+    path = "/risk",
+    responses(
+        (status = 200, description = "Current risk settings", body = RiskSettingsResponse),
+    ),
+    tag = "risk",
+)]
+pub async fn get_risk(State(state): State<AppState>) -> Result<Json<RiskSettingsResponse>, AppError> {
     let settings = risk::get_current(&state.pool).await.map_err(AppError::Internal)?;
     Ok(Json(RiskSettingsResponse::from(settings)))
 }
 
-async fn update_risk(
+#[utoipa::path(
+    put,
+    path = "/risk",
+    request_body = UpdateRiskSettingsRequest,
+    responses(
+        (status = 200, description = "Updated risk settings", body = RiskSettingsResponse),
+    ),
+    tag = "risk",
+)]
+pub async fn update_risk(
     State(state): State<AppState>,
     ValidatedJson(body): ValidatedJson<UpdateRiskSettingsRequest>,
 ) -> Result<Json<RiskSettingsResponse>, AppError> {
@@ -28,12 +45,29 @@ async fn update_risk(
     Ok(Json(RiskSettingsResponse::from(settings)))
 }
 
-async fn reset_drawdown(State(state): State<AppState>) -> Result<Json<RiskSettingsResponse>, AppError> {
+#[utoipa::path(
+    post,
+    path = "/risk/reset-drawdown",
+    responses(
+        (status = 200, description = "Drawdown reset", body = RiskSettingsResponse),
+    ),
+    tag = "risk",
+)]
+pub async fn reset_drawdown(State(state): State<AppState>) -> Result<Json<RiskSettingsResponse>, AppError> {
     let settings = risk::reset_drawdown(&state.pool).await.map_err(AppError::Internal)?;
     Ok(Json(RiskSettingsResponse::from(settings)))
 }
 
-async fn add_funds(
+#[utoipa::path(
+    post,
+    path = "/risk/add-funds",
+    request_body = AddFundsRequest,
+    responses(
+        (status = 200, description = "Funds added", body = RiskSettingsResponse),
+    ),
+    tag = "risk",
+)]
+pub async fn add_funds(
     State(state): State<AppState>,
     ValidatedJson(body): ValidatedJson<AddFundsRequest>,
 ) -> Result<Json<RiskSettingsResponse>, AppError> {

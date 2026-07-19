@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::safety::CheckResult;
 
-#[derive(Serialize)]
+#[derive(Serialize, utoipa::ToSchema)]
 pub struct SafetyCheckResponse {
     pub allowed: bool,
     pub checks: Vec<CheckResult>,
@@ -15,7 +15,7 @@ impl From<Vec<CheckResult>> for SafetyCheckResponse {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, utoipa::ToSchema)]
 pub struct SafetyCheckTradeRequest {
     pub trade_type: String,
     pub position_size: f64,

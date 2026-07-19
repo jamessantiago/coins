@@ -20,6 +20,7 @@ pub struct Config {
     pub tls_cert_path: Option<String>,
     pub tls_key_path: Option<String>,
     pub solana_rpc_url: Option<String>,
+    pub solana_keypair_path: Option<String>,
     pub dexscreener_token_profiles_url: Option<String>,
     pub spike_threshold: Option<f64>,
     pub baseline_windows: Option<u64>,

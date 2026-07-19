@@ -7,7 +7,7 @@ use coins_database::queries::trade;
 use coins_trading::SafetyCheck;
 use coins_trading::safety::SafetyOutcome;
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize, utoipa::ToSchema)]
 pub struct CheckResult {
     pub name: &'static str,
     pub passed: bool,

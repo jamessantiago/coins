@@ -21,7 +21,7 @@ fn validate_trading_mode(v: &str) -> Result<(), validator::ValidationError> {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, utoipa::ToSchema)]
 pub struct RiskSettingsResponse {
     pub peak_value: f64,
     pub real_peak_value: f64,
@@ -62,7 +62,7 @@ impl From<RiskSettings> for RiskSettingsResponse {
     }
 }
 
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Validate, utoipa::ToSchema)]
 pub struct UpdateRiskSettingsRequest {
     #[validate(range(min = 0.0))]
     pub peak_value: f64,
@@ -132,7 +132,7 @@ impl UpdateRiskSettingsRequest {
     }
 }
 
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Validate, utoipa::ToSchema)]
 pub struct AddFundsRequest {
     #[validate(range(min = 0.0))]
     pub amount: f64,

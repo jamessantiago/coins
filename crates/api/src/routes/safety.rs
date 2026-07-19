@@ -12,7 +12,15 @@ pub fn router() -> Router<AppState> {
         .route("/safety/check-trade", post(check_trade))
 }
 
-async fn check_general(
+#[utoipa::path(
+    get,
+    path = "/safety/check",
+    responses(
+        (status = 200, description = "General safety check results", body = SafetyCheckResponse),
+    ),
+    tag = "safety",
+)]
+pub async fn check_general(
     State(state): State<AppState>,
 ) -> Result<Json<SafetyCheckResponse>, AppError> {
     let checks = safety::run_general(&state.pool)
@@ -21,7 +29,16 @@ async fn check_general(
     Ok(Json(SafetyCheckResponse::from(checks)))
 }
 
-async fn check_trade(
+#[utoipa::path(
+    post,
+    path = "/safety/check-trade",
+    request_body = SafetyCheckTradeRequest,
+    responses(
+        (status = 200, description = "Trade safety check results", body = SafetyCheckResponse),
+    ),
+    tag = "safety",
+)]
+pub async fn check_trade(
     State(state): State<AppState>,
     Json(body): Json<SafetyCheckTradeRequest>,
 ) -> Result<Json<SafetyCheckResponse>, AppError> {

@@ -24,7 +24,7 @@ tokio = { version = "1.53.0", features = ["full"] }
 tower-http = { version = "0.7.0", features = ["cors"] }
 
 # serialization
-serde = { version = "1.0.228", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.150"
 
 # logging, file and otel outputs
@@ -35,14 +35,14 @@ opentelemetry-otlp = "0.32.0"
 tracing-opentelemetry = "0.33.0"
 
 # error typing
-anyhow = "1.0.103"
-thiserror = "2.0.18"
+anyhow = "1.0.104"
+thiserror = "2.0.19"
 
 # sqlite
 sqlx = { version = "0.9.0", features = ["runtime-tokio", "sqlite", "chrono"] }
 
 # validation
-validator = { version = "0.19", features = ["derive"] }
+validator = { version = "0.20.0", features = ["derive"] }
 
 # http client
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "native-tls"] }
@@ -50,10 +50,13 @@ reqwest = { version = "0.13.4", default-features = false, features = ["json", "n
 # solana sdk
 pumpfun = "4.6.0"
 jup-ag-sdk = "1.0.6"
+solana-sdk = "2.3"
+solana-client = "2.3"
 
 # encoding
 base64 = "0.22.1"
 bs58 = "0.5.1"
+serde-wincode = "0.1.2"
 
 # text
 regex = "1.13.1"
@@ -64,6 +67,10 @@ envy = "0.4.2"
 chrono = "0.4.45"
 apalis = "1.0.0-rc.9"
 apalis-sqlite = "1.0.0-rc.8"
+
+# openapi
+utoipa = { version = "5.5.0", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 
 # dev
 serial_test = "3.5.0"
