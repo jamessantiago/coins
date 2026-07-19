@@ -1,5 +1,6 @@
 pub mod dto;
 pub mod risk;
+pub mod safety;
 pub mod state;
 
 use std::time::Duration;

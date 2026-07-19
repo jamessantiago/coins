@@ -2,6 +2,7 @@ pub mod cex;
 pub mod common;
 pub mod distilled;
 pub mod research;
+pub mod safety;
 pub mod settings;
 pub mod telegram;
 pub mod token;

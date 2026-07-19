@@ -907,6 +907,7 @@ dependencies = [
  "coins-distiller",
  "coins-scanner",
  "coins-telegram",
+ "coins-trading",
  "serde",
  "sqlx 0.9.0",
  "tokio",
@@ -1022,6 +1023,7 @@ name = "coins-trading"
 version = "0.1.0"
 dependencies = [
  "coins-config",
+ "coins-database",
  "jup-ag-sdk",
  "pumpfun",
 ]

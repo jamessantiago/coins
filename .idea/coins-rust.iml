@@ -18,6 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/jobs/distiller/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/app/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/app/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/core/trading/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/coins-core/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/api/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/core/config/target" />

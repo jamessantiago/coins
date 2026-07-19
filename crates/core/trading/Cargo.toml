@@ -7,3 +7,7 @@ edition = "2024"
 pumpfun.workspace = true
 jup-ag-sdk.workspace = true
 coins-config = { path = "../config" }
+coins-database = { path = "../database" }
+
+[dev-dependencies]
+coins-database = { path = "../database" }
