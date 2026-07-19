@@ -1,4 +1,8 @@
-use axum::{Json, Router, extract::State, routing::{get, post}};
+use axum::{
+    Json, Router,
+    extract::State,
+    routing::{get, post},
+};
 
 use coins_app::dto::safety::{SafetyCheckResponse, SafetyCheckTradeRequest};
 use coins_app::safety;

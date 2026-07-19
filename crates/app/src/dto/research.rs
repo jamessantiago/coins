@@ -1,5 +1,5 @@
-use serde::Serialize;
 use coins_database::models::research_entry::ResearchEntry;
+use serde::Serialize;
 
 use crate::dto::common::fmt_ts;
 

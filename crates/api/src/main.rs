@@ -3,11 +3,11 @@ mod extractor;
 mod openapi;
 mod routes;
 
-use std::net::SocketAddr;
-use std::process::exit;
 use axum_server::tls_rustls::RustlsConfig;
 use coins_app::App;
 use coins_config::Config;
+use std::net::SocketAddr;
+use std::process::exit;
 use tower_http::cors::CorsLayer;
 use tracing::{error, info};
 use utoipa::OpenApi;
@@ -30,8 +30,9 @@ async fn main() -> anyhow::Result<()> {
     let addr: SocketAddr = format!("{}:{}", host, port).parse()?;
 
     let router = routes::router()
-        .merge(SwaggerUi::new("/swagger-ui")
-            .url("/api-docs/openapi.json", openapi::ApiDoc::openapi()))
+        .merge(
+            SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi::ApiDoc::openapi()),
+        )
         .layer(CorsLayer::permissive())
         .with_state(app.state);
 

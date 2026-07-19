@@ -40,10 +40,7 @@ fn compute_ranking_score(
     (score * 10.0).round() / 10.0
 }
 
-fn should_recheck_safety(
-    existing: Option<&DistilledToken>,
-    sources: &HashSet<String>,
-) -> bool {
+fn should_recheck_safety(existing: Option<&DistilledToken>, sources: &HashSet<String>) -> bool {
     match existing {
         None => true,
         Some(t) => {
@@ -68,20 +65,29 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
     let mut sources: HashMap<String, HashSet<String>> = HashMap::new();
 
     for addr in token_queries::list_all_addresses(pool).await? {
-        sources.entry(addr).or_default().insert(SOURCE_SCANNER.to_string());
+        sources
+            .entry(addr)
+            .or_default()
+            .insert(SOURCE_SCANNER.to_string());
     }
 
     for msg in tg_queries::iterate_messages_with_addresses(pool).await? {
         for line in msg.extracted_addresses.lines() {
             let addr = line.trim().to_string();
             if !addr.is_empty() {
-                sources.entry(addr).or_default().insert(SOURCE_TELEGRAM.to_string());
+                sources
+                    .entry(addr)
+                    .or_default()
+                    .insert(SOURCE_TELEGRAM.to_string());
             }
         }
     }
 
     for addr in research_queries::list_all_addresses(pool).await? {
-        sources.entry(addr).or_default().insert(SOURCE_RESEARCH.to_string());
+        sources
+            .entry(addr)
+            .or_default()
+            .insert(SOURCE_RESEARCH.to_string());
     }
 
     // ---- Step 1b: Collect telegram mention counts ----
@@ -129,14 +135,12 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
         let pairs = client::search_pairs(&search_url, address).await;
 
         // ---- 2b: Pick best pair by liquidity ----
-        let best_pair = pairs
-            .into_iter()
-            .max_by(|a, b| {
-                a.liquidity_usd
-                    .unwrap_or(0.0)
-                    .partial_cmp(&b.liquidity_usd.unwrap_or(0.0))
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
+        let best_pair = pairs.into_iter().max_by(|a, b| {
+            a.liquidity_usd
+                .unwrap_or(0.0)
+                .partial_cmp(&b.liquidity_usd.unwrap_or(0.0))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         // ---- 2c: Extract/fallback fields ----
         let symbol = best_pair
@@ -246,10 +250,7 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
             _ => existing.as_ref().and_then(|t| t.buy_sell_ratio),
         };
 
-        let first_seen = existing
-            .as_ref()
-            .map(|t| t.first_seen)
-            .unwrap_or(now);
+        let first_seen = existing.as_ref().map(|t| t.first_seen).unwrap_or(now);
 
         let ranking_score = compute_ranking_score(
             safety_score,

@@ -16,7 +16,10 @@ pub struct CheckResult {
 
 fn compute_drawdown(settings: &RiskSettings) -> f64 {
     let (peak, current) = match settings.trading_mode {
-        TradingMode::Virtual => (settings.virtual_peak_value, settings.virtual_portfolio_value),
+        TradingMode::Virtual => (
+            settings.virtual_peak_value,
+            settings.virtual_portfolio_value,
+        ),
         TradingMode::Real => (settings.real_peak_value, settings.real_portfolio_value),
     };
     if peak <= 0.0 {

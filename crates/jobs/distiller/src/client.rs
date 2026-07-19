@@ -51,35 +51,35 @@ pub async fn search_pairs(url: &str, address: &str) -> Vec<DexPair> {
             }
 
             let base = p.get("baseToken")?;
-            let symbol = base.get("symbol").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let name = base.get("name").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let pair_address = p.get("pairAddress").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let symbol = base
+                .get("symbol")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let name = base
+                .get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let pair_address = p
+                .get("pairAddress")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
 
-            let liquidity_usd = p
-                .pointer("/liquidity/usd")
-                .and_then(|v| v.as_f64());
+            let liquidity_usd = p.pointer("/liquidity/usd").and_then(|v| v.as_f64());
 
-            let volume_24h = p
-                .pointer("/volume/h24")
-                .and_then(|v| v.as_f64());
+            let volume_24h = p.pointer("/volume/h24").and_then(|v| v.as_f64());
 
             let fdv = p.get("fdv").and_then(|v| v.as_f64());
 
-            let price_change_24h = p
-                .pointer("/priceChange/h24")
-                .and_then(|v| v.as_f64());
+            let price_change_24h = p.pointer("/priceChange/h24").and_then(|v| v.as_f64());
 
-            let price_change_1h = p
-                .pointer("/priceChange/h1")
-                .and_then(|v| v.as_f64());
+            let price_change_1h = p.pointer("/priceChange/h1").and_then(|v| v.as_f64());
 
-            let txn_buys_24h = p
-                .pointer("/txns/h24/buys")
-                .and_then(|v| v.as_i64());
+            let txn_buys_24h = p.pointer("/txns/h24/buys").and_then(|v| v.as_i64());
 
-            let txn_sells_24h = p
-                .pointer("/txns/h24/sells")
-                .and_then(|v| v.as_i64());
+            let txn_sells_24h = p.pointer("/txns/h24/sells").and_then(|v| v.as_i64());
 
             Some(DexPair {
                 pair_address,

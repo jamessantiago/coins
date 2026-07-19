@@ -3,7 +3,7 @@ mod util;
 use coins_database::models::risk_settings::RiskSettings;
 use coins_database::models::trade::TradeStatus;
 use coins_database::queries::risk_settings::get_risk;
-use coins_trading::{virtual_buy, virtual_sell, VirtualBuyRequest, VirtualSellRequest};
+use coins_trading::{VirtualBuyRequest, VirtualSellRequest, virtual_buy, virtual_sell};
 
 async fn seed_risk_settings(pool: &sqlx::SqlitePool, balance: f64) {
     let mut settings = RiskSettings::default();

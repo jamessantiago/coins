@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use chrono::Utc;
-use pumpfun::common::types::{Cluster, PriorityFee};
 use pumpfun::PumpFun;
+use pumpfun::common::types::{Cluster, PriorityFee};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
@@ -10,7 +10,7 @@ use solana_sdk::signature::Keypair;
 use solana_sdk::signer::Signer;
 use sqlx::SqlitePool;
 
-use serde_wincode::{wincode, SerdeCompat};
+use serde_wincode::{SerdeCompat, wincode};
 
 use coins_database::models::trade::{Trade, TradeStatus};
 use coins_database::queries::risk_settings::{get_risk, upsert_risk};
@@ -41,10 +41,7 @@ impl std::error::Error for InsufficientBalance {}
 /// Check the on-chain SOL balance of the wallet.
 ///
 /// Returns the balance in SOL.
-pub async fn check_wallet_balance(
-    keypair: &Keypair,
-    rpc_url: &str,
-) -> anyhow::Result<f64> {
+pub async fn check_wallet_balance(keypair: &Keypair, rpc_url: &str) -> anyhow::Result<f64> {
     let rpc = RpcClient::new(rpc_url.to_string());
     let lamports = rpc
         .get_balance(&keypair.pubkey())
@@ -61,9 +58,7 @@ pub async fn ensure_sufficient_balance(
     rpc_url: &str,
     required_sol: f64,
 ) -> Result<(), InsufficientBalance> {
-    let balance_sol = check_wallet_balance(keypair, rpc_url)
-        .await
-        .unwrap_or(0.0);
+    let balance_sol = check_wallet_balance(keypair, rpc_url).await.unwrap_or(0.0);
     let needed = required_sol + TX_FEE_BUFFER_SOL;
     if balance_sol >= needed {
         Ok(())
@@ -259,8 +254,8 @@ pub async fn jupiter_buy(
     jupiter_url: &str,
     req: RealBuyRequest,
 ) -> anyhow::Result<Trade> {
-    use jup_ag_sdk::types::{QuoteRequest, SwapRequest};
     use jup_ag_sdk::JupiterClient;
+    use jup_ag_sdk::types::{QuoteRequest, SwapRequest};
 
     let mut settings = get_risk(pool).await?;
 
@@ -371,8 +366,8 @@ pub async fn jupiter_sell(
     jupiter_url: &str,
     req: RealSellRequest,
 ) -> anyhow::Result<Trade> {
-    use jup_ag_sdk::types::{QuoteRequest, SwapRequest};
     use jup_ag_sdk::JupiterClient;
+    use jup_ag_sdk::types::{QuoteRequest, SwapRequest};
 
     let mut trade = get_by_id(pool, req.trade_id)
         .await?

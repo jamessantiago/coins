@@ -1,6 +1,4 @@
-use coins_app::dto::settings::{
-    AddFundsRequest, RiskSettingsResponse, UpdateRiskSettingsRequest,
-};
+use coins_app::dto::settings::{AddFundsRequest, RiskSettingsResponse, UpdateRiskSettingsRequest};
 use coins_database::models::risk_settings::{RiskSettings, TradingMode};
 use validator::Validate;
 

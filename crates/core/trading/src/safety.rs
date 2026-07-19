@@ -174,27 +174,43 @@ mod tests {
 
     #[test]
     fn and_then_chains_on_allowed() {
-        let result = SafetyOutcome::Allowed
-            .and_then(|| SafetyOutcome::Blocked("second".into()));
+        let result = SafetyOutcome::Allowed.and_then(|| SafetyOutcome::Blocked("second".into()));
         assert_eq!(result.reason(), Some("second"));
     }
 
     #[test]
     fn and_then_short_circuits_blocked() {
-        let result = SafetyOutcome::Blocked("first".into())
-            .and_then(|| SafetyOutcome::Allowed);
+        let result = SafetyOutcome::Blocked("first".into()).and_then(|| SafetyOutcome::Allowed);
         assert_eq!(result.reason(), Some("first"));
     }
 
     #[test]
     fn check_drawdown_boundary() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 20.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            20.0,
         );
         assert!(c.check_drawdown().is_blocked());
 
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 19.999,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            19.999,
         );
         assert!(c.check_drawdown().is_allowed());
     }
@@ -202,7 +218,16 @@ mod tests {
     #[test]
     fn check_drawdown_pause_threshold() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 10.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            10.0,
         );
         assert!(c.check_drawdown_pause().is_blocked());
     }
@@ -210,12 +235,30 @@ mod tests {
     #[test]
     fn check_max_positions_boundary() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 8, 0.0, 1000.0, 0.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            8,
+            0.0,
+            1000.0,
+            0.0,
         );
         assert!(c.check_max_positions().is_blocked());
 
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 7, 0.0, 1000.0, 0.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            7,
+            0.0,
+            1000.0,
+            0.0,
         );
         assert!(c.check_max_positions().is_allowed());
     }
@@ -223,7 +266,16 @@ mod tests {
     #[test]
     fn check_position_size_boundary() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 0.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            0.0,
         );
         let max_pos = 1000.0 * 2.0 / 100.0;
         assert!(c.check_position_size(max_pos).is_allowed());
@@ -233,7 +285,16 @@ mod tests {
     #[test]
     fn run_all_short_circuits_on_first_block() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 15.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            15.0,
         );
         let result = c.run_all();
         assert!(result.is_blocked());
@@ -243,7 +304,16 @@ mod tests {
     #[test]
     fn real_mode_allows_virtual_trades() {
         let c = SafetyCheck::new(
-            TradingMode::Real, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 0.0,
+            TradingMode::Real,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            0.0,
         );
         assert!(c.check_trading_mode("virtual").is_allowed());
         assert!(c.check_trading_mode("real").is_allowed());
@@ -252,7 +322,16 @@ mod tests {
     #[test]
     fn run_all_for_trade_blocked_by_drawdown() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 25.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            25.0,
         );
         assert!(c.run_all_for_trade("virtual", 10.0).is_blocked());
     }
@@ -260,7 +339,16 @@ mod tests {
     #[test]
     fn run_all_for_trade_blocked_by_position_size() {
         let c = SafetyCheck::new(
-            TradingMode::Virtual, 20.0, 10.0, 8, 30.0, 2.0, 0, 0.0, 1000.0, 0.0,
+            TradingMode::Virtual,
+            20.0,
+            10.0,
+            8,
+            30.0,
+            2.0,
+            0,
+            0.0,
+            1000.0,
+            0.0,
         );
         assert!(c.run_all_for_trade("virtual", 100.0).is_blocked());
     }

@@ -1,5 +1,5 @@
-use serde::Serialize;
 use coins_database::models::distilled_token::DistilledToken;
+use serde::Serialize;
 
 use crate::dto::common::fmt_ts;
 

@@ -1,5 +1,5 @@
-use serde::Serialize;
 use coins_database::models::trade::{Trade, TradeStatus};
+use serde::Serialize;
 
 use crate::dto::common::{fmt_ts, fmt_ts_opt};
 

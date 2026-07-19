@@ -22,10 +22,7 @@ pub struct VirtualSellRequest {
     pub close_reason: Option<String>,
 }
 
-pub async fn virtual_buy(
-    pool: &SqlitePool,
-    req: VirtualBuyRequest,
-) -> anyhow::Result<Trade> {
+pub async fn virtual_buy(pool: &SqlitePool, req: VirtualBuyRequest) -> anyhow::Result<Trade> {
     let mut settings = get_risk(pool).await?;
 
     if req.position_size > settings.virtual_wallet_balance {
@@ -84,10 +81,7 @@ pub async fn virtual_buy(
     Ok(trade)
 }
 
-pub async fn virtual_sell(
-    pool: &SqlitePool,
-    req: VirtualSellRequest,
-) -> anyhow::Result<Trade> {
+pub async fn virtual_sell(pool: &SqlitePool, req: VirtualSellRequest) -> anyhow::Result<Trade> {
     let mut trade = get_by_id(pool, req.trade_id)
         .await?
         .ok_or_else(|| anyhow::anyhow!("trade {} not found", req.trade_id))?;

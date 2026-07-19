@@ -1,5 +1,5 @@
-use serde::Serialize;
 use coins_database::models::cex_listing::CexListing;
+use serde::Serialize;
 
 use crate::dto::common::{fmt_ts, fmt_ts_opt};
 

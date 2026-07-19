@@ -1,6 +1,6 @@
 use axum::http::StatusCode;
-use axum::{Json, extract::State, Router};
 use axum::routing::get;
+use axum::{Json, Router, extract::State};
 use serde::Serialize;
 
 use coins_app::state::AppState;
