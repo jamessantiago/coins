@@ -1,0 +1,19 @@
+[package]
+name = "coins-app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio.workspace = true
+serde.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+validator.workspace = true
+coins-config = { path = "../core/config" }
+coins-database = { path = "../core/database" }
+coins-scanner = { path = "../jobs/scanner" }
+coins-cex = { path = "../jobs/cex" }
+coins-telegram = { path = "../jobs/telegram" }
+coins-distiller = { path = "../jobs/distiller" }

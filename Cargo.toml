@@ -4,6 +4,7 @@ members = [
     "crates/api",
     "crates/core/config",
     "crates/core/database", "crates/core/trading",
+    "crates/app",
     "crates/jobs/scanner",
     "crates/jobs/cex",
     "crates/jobs/telegram",
@@ -39,6 +40,9 @@ thiserror = "2.0.18"
 
 # sqlite
 sqlx = { version = "0.9.0", features = ["runtime-tokio", "sqlite", "chrono"] }
+
+# validation
+validator = { version = "0.19", features = ["derive"] }
 
 # http client
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "native-tls"] }

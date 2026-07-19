@@ -19,9 +19,6 @@ tracing-opentelemetry.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
 sqlx.workspace = true
+validator.workspace = true
 coins-config = { path = "../core/config" }
-coins-database = { path = "../core/database" }
-coins-scanner = { path = "../jobs/scanner" }
-coins-cex = { path = "../jobs/cex" }
-coins-telegram = { path = "../jobs/telegram" }
-coins-distiller = { path = "../jobs/distiller" }
+coins-app = { path = "../app" }

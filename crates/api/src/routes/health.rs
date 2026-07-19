@@ -1,8 +1,9 @@
 use axum::http::StatusCode;
-use axum::{Json, extract::State};
+use axum::{Json, extract::State, Router};
+use axum::routing::get;
 use serde::Serialize;
 
-use crate::state::AppState;
+use coins_app::state::AppState;
 
 #[derive(Serialize)]
 pub struct HealthResponse {
@@ -10,7 +11,11 @@ pub struct HealthResponse {
     pub database: &'static str,
 }
 
-pub async fn healthcheck(State(state): State<AppState>) -> (StatusCode, Json<HealthResponse>) {
+pub fn router() -> Router<AppState> {
+    Router::new().route("/healthcheck", get(healthcheck))
+}
+
+async fn healthcheck(State(state): State<AppState>) -> (StatusCode, Json<HealthResponse>) {
     match sqlx::query("SELECT 1").execute(&state.pool).await {
         Ok(_) => (
             StatusCode::OK,
