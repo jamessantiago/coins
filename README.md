@@ -1,4 +1,4 @@
-# coins-rust
+# Coins
 
 Solana memecoin trading bot with automated scanning, research, and risk-managed execution.  Mostly a learning project rather than a serious trading platform.
 
