@@ -254,6 +254,31 @@ pub async fn list_all(pool: &SqlitePool) -> Result<Vec<Trade>> {
     Ok(rows)
 }
 
+pub async fn update_peak_price(pool: &SqlitePool, id: i64, peak_price: f64) -> Result<bool> {
+    let now = chrono::Utc::now().naive_utc();
+    let affected = sqlx::query("UPDATE trades SET peak_price = $1, updated_at = $2 WHERE id = $3")
+        .bind(peak_price)
+        .bind(now)
+        .bind(id)
+        .execute(pool)
+        .await?
+        .rows_affected();
+    Ok(affected > 0)
+}
+
+pub async fn update_peak_volume(pool: &SqlitePool, id: i64, volume: f64) -> Result<bool> {
+    let now = chrono::Utc::now().naive_utc();
+    let affected =
+        sqlx::query("UPDATE trades SET peak_volume_24h = $1, updated_at = $2 WHERE id = $3")
+            .bind(volume)
+            .bind(now)
+            .bind(id)
+            .execute(pool)
+            .await?
+            .rows_affected();
+    Ok(affected > 0)
+}
+
 pub async fn delete_by_id(pool: &SqlitePool, id: i64) -> Result<bool> {
     let affected = sqlx::query("DELETE FROM trades WHERE id = $1")
         .bind(id)

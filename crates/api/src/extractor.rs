@@ -15,20 +15,18 @@ where
 {
     type Rejection = AppError;
 
-    fn from_request(
+    async fn from_request(
         req: Request,
         state: &S,
-    ) -> impl std::future::Future<Output = Result<Self, Self::Rejection>> + Send {
-        async move {
-            let Json(value) = Json::<T>::from_request(req, state)
-                .await
-                .map_err(|_| AppError::BadRequest("invalid JSON body".into()))?;
+    ) -> Result<Self, Self::Rejection> {
+        let Json(value) = Json::<T>::from_request(req, state)
+            .await
+            .map_err(|_| AppError::BadRequest("invalid JSON body".into()))?;
 
-            value
-                .validate()
-                .map_err(|e| AppError::BadRequest(e.to_string()))?;
+        value
+            .validate()
+            .map_err(|e| AppError::BadRequest(e.to_string()))?;
 
-            Ok(ValidatedJson(value))
-        }
+        Ok(ValidatedJson(value))
     }
 }

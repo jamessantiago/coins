@@ -41,12 +41,7 @@ async fn load_check(pool: &SqlitePool) -> anyhow::Result<SafetyCheck> {
     };
 
     Ok(SafetyCheck::new(
-        settings.trading_mode,
-        settings.max_drawdown_pct,
-        settings.drawdown_pause_pct,
-        settings.max_positions,
-        settings.max_narrative_pct,
-        settings.default_position_pct,
+        settings,
         open_count,
         open_value,
         portfolio_value,

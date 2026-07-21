@@ -26,8 +26,15 @@ impl App {
 }
 
 async fn spawn_jobs(pool: &SqlitePool, config: &Config) {
-    let pools = (pool.clone(), pool.clone(), pool.clone(), pool.clone());
+    let pools = (
+        pool.clone(),
+        pool.clone(),
+        pool.clone(),
+        pool.clone(),
+        pool.clone(),
+    );
     let configs = (
+        config.clone(),
         config.clone(),
         config.clone(),
         config.clone(),
@@ -81,6 +88,19 @@ async fn spawn_jobs(pool: &SqlitePool, config: &Config) {
             interval.tick().await;
             if let Err(e) = coins_distiller::run(&pool, &config).await {
                 tracing::error!(error = %e, "distiller cycle failed");
+            }
+        }
+    });
+
+    tokio::spawn(async move {
+        let pool = pools.4;
+        let config = configs.4;
+        let mut interval =
+            tokio::time::interval(Duration::from_secs(config.portfolio_poll_interval()));
+        loop {
+            interval.tick().await;
+            if let Err(e) = coins_portfolio::run(&pool, &config).await {
+                tracing::error!(error = %e, "portfolio cycle failed");
             }
         }
     });

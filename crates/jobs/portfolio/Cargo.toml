@@ -1,0 +1,17 @@
+[package]
+name = "coins-portfolio"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+coins-config = { path = "../../core/config" }
+coins-database = { path = "../../core/database" }
+coins-trading = { path = "../../core/trading" }

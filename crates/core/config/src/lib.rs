@@ -32,6 +32,7 @@ pub struct Config {
     pub telegram_bot_token: Option<String>,
     pub telegram_poll_interval_secs: Option<u64>,
     pub distiller_poll_interval_secs: Option<u64>,
+    pub portfolio_poll_interval_secs: Option<u64>,
     pub dexscreener_search_url: Option<String>,
 }
 
@@ -95,6 +96,10 @@ impl Config {
 
     pub fn distiller_poll_interval(&self) -> u64 {
         self.distiller_poll_interval_secs.unwrap_or(300)
+    }
+
+    pub fn portfolio_poll_interval(&self) -> u64 {
+        self.portfolio_poll_interval_secs.unwrap_or(60)
     }
 
     pub fn dexscreener_search_url(&self) -> String {

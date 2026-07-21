@@ -12,6 +12,7 @@ use tower_http::cors::CorsLayer;
 use tracing::{error, info};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
+use crate::error::not_found;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -34,7 +35,8 @@ async fn main() -> anyhow::Result<()> {
             SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi::ApiDoc::openapi()),
         )
         .layer(CorsLayer::permissive())
-        .with_state(app.state);
+        .with_state(app.state)
+        .fallback(not_found);
 
     let (tls_cert, tls_key) = (config.tls_cert_path.clone(), config.tls_key_path.clone());
     match (&tls_cert, &tls_key) {

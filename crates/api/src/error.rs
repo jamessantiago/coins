@@ -5,8 +5,8 @@ use serde_json::json;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("not found")]
-    NotFound,
+    // #[error("not found")]
+    // NotFound,
 
     #[error("{0}")]
     BadRequest(String),
@@ -18,10 +18,14 @@ pub enum AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, message) = match self {
-            AppError::NotFound => (StatusCode::NOT_FOUND, "not found".to_string()),
+            // AppError::NotFound => (StatusCode::NOT_FOUND, "not found".to_string()),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::Internal(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
         };
         (status, Json(json!({ "error": message }))).into_response()
     }
+}
+
+pub async fn not_found() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "not found")
 }

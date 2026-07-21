@@ -10,7 +10,7 @@ pub enum TradingMode {
 }
 
 /// Settings for managing risk around open trades and current state of the portfolio
-#[derive(sqlx::FromRow)]
+#[derive(Debug, Clone, sqlx::FromRow)]
 pub struct RiskSettings {
     /// Highest unrealized/realized value of real portfolio
     pub peak_value: f64,

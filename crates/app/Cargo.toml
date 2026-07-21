@@ -19,3 +19,4 @@ coins-cex = { path = "../jobs/cex" }
 coins-telegram = { path = "../jobs/telegram" }
 coins-distiller = { path = "../jobs/distiller" }
 coins-trading = { path = "../core/trading" }
+coins-portfolio = { path = "../jobs/portfolio" }

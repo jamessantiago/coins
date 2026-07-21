@@ -16,26 +16,16 @@ const SOURCE_SCANNER: &str = "scanner";
 const SOURCE_TELEGRAM: &str = "telegram";
 const SOURCE_RESEARCH: &str = "research";
 
-fn compute_ranking_score(
-    safety_score: Option<f64>,
-    liquidity_usd: Option<f64>,
-    volume_24h: Option<f64>,
-    telegram_mentions: i32,
-    research_conviction: Option<i32>,
-    cex_listed: bool,
-    price_change_24h: Option<f64>,
-    vol_liq_ratio: Option<f64>,
-    buy_sell_ratio: Option<f64>,
-) -> f64 {
-    let score = (safety_score.unwrap_or(0.0)) * 2.5
-        + (liquidity_usd.unwrap_or(0.0) / 100_000.0).min(1.0) * 15.0
-        + (volume_24h.unwrap_or(0.0) / 50_000.0).min(1.0) * 10.0
-        + (telegram_mentions as f64 / 10.0).min(1.0) * 10.0
-        + (research_conviction.unwrap_or(0) as f64 / 5.0) * 10.0
-        + if cex_listed { 10.0 } else { 0.0 }
-        + (price_change_24h.unwrap_or(0.0).max(0.0) / 10.0).min(1.0) * 10.0
-        + vol_liq_ratio.unwrap_or(0.0).min(1.0) * 5.0
-        + buy_sell_ratio.unwrap_or(0.0).min(1.0) * 5.0;
+fn compute_ranking_score(t: &DistilledToken) -> f64 {
+    let score = (t.safety_score.unwrap_or(0.0)) * 2.5
+        + (t.liquidity_usd.unwrap_or(0.0) / 100_000.0).min(1.0) * 15.0
+        + (t.volume_24h.unwrap_or(0.0) / 50_000.0).min(1.0) * 10.0
+        + (t.telegram_mentions as f64 / 10.0).min(1.0) * 10.0
+        + (t.research_conviction.unwrap_or(0) as f64 / 5.0) * 10.0
+        + if t.cex_listed { 10.0 } else { 0.0 }
+        + (t.price_change_24h.unwrap_or(0.0).max(0.0) / 10.0).min(1.0) * 10.0
+        + t.vol_liq_ratio.unwrap_or(0.0).min(1.0) * 5.0
+        + t.buy_sell_ratio.unwrap_or(0.0).min(1.0) * 5.0;
 
     (score * 10.0).round() / 10.0
 }
@@ -252,17 +242,30 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
 
         let first_seen = existing.as_ref().map(|t| t.first_seen).unwrap_or(now);
 
-        let ranking_score = compute_ranking_score(
+        let ranking_token = DistilledToken {
             safety_score,
-            liq,
-            vol,
-            tg_count,
-            conviction,
+            liquidity_usd: liq,
+            volume_24h: vol,
+            telegram_mentions: tg_count,
+            research_conviction: conviction,
             cex_listed,
             price_change_24h,
             vol_liq_ratio,
             buy_sell_ratio,
-        );
+            first_seen,
+            last_seen: now,
+            updated_at: now,
+            ranking_score: 0.0,
+            address: String::new(),
+            symbol: String::new(),
+            name: String::new(),
+            sources: String::new(),
+            fdv: None,
+            narrative_clusters: String::new(),
+            dexscreener_url: String::new(),
+            price_change_1h: None,
+        };
+        let ranking_score = compute_ranking_score(&ranking_token);
 
         // ---- 2k: Save ----
         let token = DistilledToken {
@@ -311,17 +314,7 @@ pub async fn run(pool: &SqlitePool, config: &Config) -> anyhow::Result<()> {
     let unscored = dt_queries::list_unscored(pool).await?;
     let unscored_count = unscored.len();
     for t in &unscored {
-        let score = compute_ranking_score(
-            t.safety_score,
-            t.liquidity_usd,
-            t.volume_24h,
-            t.telegram_mentions,
-            t.research_conviction,
-            t.cex_listed,
-            t.price_change_24h,
-            t.vol_liq_ratio,
-            t.buy_sell_ratio,
-        );
+        let score = compute_ranking_score(t);
         dt_queries::update_ranking_score(pool, &t.address, score).await?;
         processed += 1;
     }

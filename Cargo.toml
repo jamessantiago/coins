@@ -9,6 +9,7 @@ members = [
     "crates/jobs/cex",
     "crates/jobs/telegram",
     "crates/jobs/distiller",
+    "crates/jobs/portfolio",
 ]
 
 [workspace.dependencies]
